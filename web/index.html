@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LittleHeart</title>
+  <meta name="description" content="AI heart murmur screening for children, running privately in the browser.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M16 28s-11-7-11-15a6 6 0 0 1 11-3 6 6 0 0 1 11 3c0 8-11 15-11 15z' fill='%23d6455d'/></svg>">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-row">
+      <div class="brand">
+        <svg viewBox="0 0 32 32" class="logo" aria-hidden="true"><path d="M16 28s-11-7-11-15a6 6 0 0 1 11-3 6 6 0 0 1 11 3c0 8-11 15-11 15z"/><path d="M6 16h6l2-4 3 8 2-4h7" class="logo-line"/></svg>
+        <span>LittleHeart</span>
+      </div>
+      <nav class="tabs" role="tablist">
+        <button class="tab active" data-tab="screen" role="tab">Screen a child</button>
+        <button class="tab" data-tab="validation" role="tab">Validation</button>
+        <button class="tab" data-tab="learn" role="tab">About murmurs</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- =================== SCREEN =================== -->
+    <section id="tab-screen" class="panel active">
+      <div class="intro">
+        <h1>Hear the heart problems that hide in children.</h1>
+        <p>LittleHeart listens to stethoscope recordings from the four heart valve areas and flags children whose heart
+          sounds contain a murmur, so a health worker knows who needs an echocardiogram. The AI runs on this device; no recording is uploaded.</p>
+      </div>
+
+      <div class="screen-grid">
+        <div class="card input-card">
+          <h2>1. Add recordings</h2>
+          <div class="source-tabs" role="tablist">
+            <button class="source active" data-source="demo">Real cases</button>
+            <button class="source" data-source="upload">Upload</button>
+            <button class="source" data-source="record">Record</button>
+          </div>
+
+          <div class="source-panel active" id="source-demo">
+            <p class="muted small">Children from the CirCor dataset that the AI never saw during training. The cardiologist's finding is revealed after the analysis.</p>
+            <div id="demo-cases" class="demo-cases"></div>
+          </div>
+
+          <div class="source-panel" id="source-upload">
+            <p class="muted small">Choose WAV/MP3 recordings. Name files like <code>name_AV.wav</code>, <code>name_MV.wav</code> to set the valve automatically.</p>
+            <label class="file-drop" id="file-drop">
+              <input type="file" id="file-input" accept="audio/*,.wav" multiple>
+              <span><b>Choose files</b> or drop them here</span>
+            </label>
+          </div>
+
+          <div class="source-panel" id="source-record">
+            <p class="muted small">Place a digital stethoscope, or a stethoscope with a phone adapter, on the highlighted spot. Record 15 seconds while the child is calm.</p>
+            <div class="record-row">
+              <select id="record-site" aria-label="Valve area">
+                <option value="AV">Aortic (AV)</option>
+                <option value="PV">Pulmonary (PV)</option>
+                <option value="TV">Tricuspid (TV)</option>
+                <option value="MV">Mitral (MV)</option>
+              </select>
+              <button class="btn" id="record-btn">● Record 15 s</button>
+            </div>
+            <p id="record-status" class="small muted" aria-live="polite"></p>
+          </div>
+
+          <h2 class="mt">2. Listening sites</h2>
+          <div class="chest-wrap">
+            <svg viewBox="30 20 160 170" class="chest" id="chest" aria-label="Chest diagram with the four auscultation sites">
+              <path class="torso" d="M40 20 Q110 0 180 20 L195 70 Q200 150 185 220 L35 220 Q20 150 25 70 Z"/>
+              <path class="sternum" d="M110 30 L110 150"/>
+              <path class="heart-shape" d="M95 85 Q80 70 95 62 Q110 58 112 75 Q125 60 140 70 Q150 85 135 110 L112 135 Q95 115 95 85Z"/>
+              <g class="site" data-site="AV" transform="translate(92 62)"><circle r="13"/><text>AV</text></g>
+              <g class="site" data-site="PV" transform="translate(128 62)"><circle r="13"/><text>PV</text></g>
+              <g class="site" data-site="TV" transform="translate(118 118)"><circle r="13"/><text>TV</text></g>
+              <g class="site" data-site="MV" transform="translate(150 132)"><circle r="13"/><text>MV</text></g>
+            </svg>
+            <ul class="site-legend">
+              <li><b>AV</b> aortic · 2nd space, right of sternum</li>
+              <li><b>PV</b> pulmonary · 2nd space, left of sternum</li>
+              <li><b>TV</b> tricuspid · lower left sternum</li>
+              <li><b>MV</b> mitral · apex, 5th space</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="results-col">
+          <div class="card verdict-card" id="verdict-card">
+            <h2>3. Result</h2>
+            <div id="verdict" class="verdict empty">
+              <div class="verdict-icon" aria-hidden="true">♡</div>
+              <div>
+                <div class="verdict-title">No recordings yet</div>
+                <div class="verdict-text">Pick a real case or add recordings to start.</div>
+              </div>
+            </div>
+            <div id="truth" class="truth" hidden></div>
+            <div class="verdict-actions" id="verdict-actions" hidden>
+              <button class="btn-ghost" id="print-btn">Print screening note</button>
+              <button class="btn-ghost" id="clear-btn">New child</button>
+            </div>
+            <p class="print-only small" id="print-meta"></p>
+          </div>
+
+          <div id="site-results" class="site-results"></div>
+        </div>
+      </div>
+
+      <p class="disclaimer">LittleHeart is a research prototype for screening support, not a medical device and not a diagnosis.
+        It was trained on children in north-east Brazil recorded with one stethoscope model; accuracy on other devices and populations is unknown.
+        A child who seems unwell should see a clinician whatever the result.</p>
+    </section>
+
+    <!-- =================== VALIDATION =================== -->
+    <section id="tab-validation" class="panel">
+      <div class="intro">
+        <h1>How well does it work?</h1>
+        <p id="val-intro"></p>
+      </div>
+
+      <div class="grid four" id="val-cards"></div>
+
+      <div class="grid two">
+        <div class="card">
+          <h2>Compared with other approaches</h2>
+          <p class="muted small">Official PhysioNet 2022 murmur score (weighted accuracy). Higher is better.</p>
+          <div id="compare" class="compare"></div>
+          <p class="muted small" id="compare-note"></p>
+        </div>
+        <div class="card">
+          <h2>Every child in cross-validation</h2>
+          <p class="muted small">Rows: cardiologist's finding. Columns: LittleHeart's answer.</p>
+          <div id="confusion" class="confusion"></div>
+        </div>
+      </div>
+
+      <div class="grid two">
+        <div class="card">
+          <h2>How the AI works</h2>
+          <ol class="steps">
+            <li><b>Spectrogram.</b> Each recording is turned into a log-mel spectrogram: a picture of which pitches (25–1000 Hz) are loud every 16 ms.</li>
+            <li><b>4-second windows.</b> The picture is cut into overlapping 4-second windows, about 4–8 heartbeats each.</li>
+            <li><b>CNN.</b> A small convolutional neural network (4 layers, about 61,000 weights) scores each window: murmur, no murmur, or unclear.</li>
+            <li><b>Per valve.</b> Window scores are averaged for each recording.</li>
+            <li><b>Per child.</b> If any valve looks like a murmur, the child is referred. If none does but a recording is unclear, it asks for a re-recording.</li>
+          </ol>
+        </div>
+        <div class="card">
+          <h2>How we tested it</h2>
+          <ul class="checks">
+            <li><b>Split by child, not recording.</b> All recordings of a child are either in training or in testing, never both.</li>
+            <li><b>Cross-validation.</b> Every child is tested once by a model that never heard them.</li>
+            <li><b>Thresholds chosen on separate data.</b> Decision cut-offs come from a validation split inside the training folds.</li>
+            <li><b>Baseline.</b> A logistic regression on average spectrum shows how much the CNN adds.</li>
+            <li><b>Untouched demo cases.</b> The real cases on the first tab were removed before any training.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card safety-card">
+        <h2>Safety check: is it really a heartbeat?</h2>
+        <p class="muted small">The CNN has only ever heard heart sounds, so it could give a confident but meaningless answer for speech or noise.
+          Before trusting it, LittleHeart checks that the low-pitched loudness rises and falls with a regular rhythm between 40 and 220 beats per minute.
+          Recordings that fail are never called "murmur" or "no murmur"; the health worker is asked to record again.</p>
+        <div id="safety" class="safety"></div>
+      </div>
+
+      <div class="card">
+        <h2>Honest status</h2>
+        <div class="status-grid">
+          <div><h3 class="ok-text">Working now</h3><ul id="status-done">
+            <li>Trained, cross-validated murmur model on 942 children</li>
+            <li>In-browser analysis of real recordings, uploads and microphone input</li>
+            <li>Per-valve explanation: spectrogram with murmur timeline</li>
+            <li>Python and JavaScript feature code verified to match</li>
+            <li>Heartbeat safety check that refuses noise, tones and most speech</li>
+          </ul></div>
+          <div><h3 class="warn-text">Not done yet</h3><ul>
+            <li>Testing with other stethoscopes and phone adapters</li>
+            <li>Validation in a new population or prospective study</li>
+            <li>Telling innocent from pathological murmurs</li>
+            <li>Clinical review and regulatory approval</li>
+          </ul></div>
+          <div><h3 class="bad-text">Known limits</h3><ul>
+            <li>Misses about 1 in <span id="miss-rate">4</span> murmurs in testing</li>
+            <li>Trained on one region (Brazil) and one device</li>
+            <li>Cross-validation on public data is not the challenge's hidden test set</li>
+            <li>Plain phone microphones are much noisier than stethoscopes</li>
+            <li>Rhythmic sounds that are not heartbeats (e.g. a metronome) can pass the safety check</li>
+            <li>Validation scores above do not include the heartbeat check, which asks for a re-recording of about 4% of real recordings</li>
+          </ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================== LEARN =================== -->
+    <section id="tab-learn" class="panel">
+      <div class="intro">
+        <h1>Why listen to children's hearts?</h1>
+        <p>Congenital heart disease is the most common birth defect, and rheumatic heart disease still damages the hearts of millions of
+          children and young people. Both are often first noticed as a murmur, but echocardiography and cardiologists are scarce where these diseases are most common.</p>
+      </div>
+      <div class="grid three">
+        <article class="card"><h2>What is a murmur?</h2>
+          <p>A whooshing sound between the normal "lub-dub" heart sounds, caused by turbulent blood flow. Many murmurs in children are innocent, but some come from holes in the heart or damaged valves.</p></article>
+        <article class="card"><h2>Who is LittleHeart for?</h2>
+          <p>Community health workers, school screening programmes and primary care clinics that have a stethoscope but no cardiologist, and need to decide which children to send for an echocardiogram.</p></article>
+        <article class="card"><h2>Why AI?</h2>
+          <p>Hearing a murmur takes years of practice, and even trained listeners disagree. An AI that has heard thousands of recordings can give every health worker a consistent second opinion.</p></article>
+        <article class="card"><h2>The four sites</h2>
+          <p>Each valve is best heard at one spot: aortic and pulmonary in the 2nd rib space either side of the breastbone, tricuspid at its lower left edge, and mitral at the apex of the heart.</p></article>
+        <article class="card"><h2>Recording tips</h2>
+          <p>Use a quiet room, keep the child calm and still, press the stethoscope firmly on bare skin, and record at least 10 seconds per site. Crying and talking make recordings unclear.</p></article>
+        <article class="card"><h2>What happens next?</h2>
+          <p>A "refer" result means the child should have an echocardiogram, the ultrasound test that shows the heart's structure. A "no murmur" result does not rule out heart disease.</p></article>
+      </div>
+      <p class="muted small">Data: CirCor DigiScope Phonocardiogram Dataset (Oliveira et al., IEEE JBHI 2022), PhysioNet, CC BY 4.0.</p>
+    </section>
+  </main>
+
+  <footer class="wrap footer">LittleHeart · UnivaBio 2026: AI for Human Health · Research prototype, not a medical device</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.min.js"></script>
+  <script src="model/metrics.js"></script>
+  <script src="js/features.js"></script>
+  <script src="js/model.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

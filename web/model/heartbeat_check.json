@@ -1,0 +1,35 @@
+{
+ "rhythm_min": 0.168,
+ "depth_min": 0.522,
+ "low_bands": 12,
+ "min_lag": 17,
+ "max_lag": 93,
+ "real_pass_rate": 0.9620613341764148,
+ "real_recordings": 3163,
+ "negatives": {
+  "white noise": {
+   "rejected": 10,
+   "trials": 10
+  },
+  "pink-ish noise": {
+   "rejected": 10,
+   "trials": 10
+  },
+  "steady tone 440 Hz": {
+   "rejected": 10,
+   "trials": 10
+  },
+  "mains hum 50 Hz": {
+   "rejected": 10,
+   "trials": 10
+  },
+  "speech-like babble": {
+   "rejected": 8,
+   "trials": 10
+  },
+  "silence with hiss": {
+   "rejected": 10,
+   "trials": 10
+  }
+ }
+}
