@@ -59,7 +59,18 @@ python docs/make_pdfs.py       # submission PDFs
 - Baseline: logistic regression on average spectrum statistics
 - 10 demo children are removed before any training or cross-validation
 
-The current numbers are in the app's Validation tab and in `web/model/metrics.json`. The full training log is in `docs/training_log.txt`.
+Results of 5-fold cross-validation on 932 children (mean ± standard deviation across folds):
+
+| | LittleHeart CNN | Baseline |
+|---|---|---|
+| PhysioNet 2022 weighted accuracy | **0.78 ± 0.05** | 0.60 |
+| Children with a murmur referred (sensitivity) | **87%** | 57% |
+| Children without a murmur not referred (specificity) | **91%** | 84% |
+| AUC (murmur vs no murmur) | **0.94** | 0.73 |
+
+For context only: the best team in the challenge scored 0.78 on the challenge's hidden test set. That set is harder and we cannot access it, so this is not a like-for-like comparison. On the 10 untouched demo children, LittleHeart agrees with the cardiologist on 7. It misses none of the 4 murmurs and asks for a re-recording for 3 children without one.
+
+Full numbers are in `web/model/metrics.json`, and the training log is in `docs/training_log.txt`.
 
 ## Limitations
 

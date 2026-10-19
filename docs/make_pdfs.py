@@ -72,7 +72,7 @@ def build_description(m):
         Paragraph("• <b>Three ways in</b>: real held-out patient cases, file upload, or live microphone/stethoscope recording.<br/>"
                   "• <b>Per-valve results</b> on an interactive chest diagram.<br/>"
                   "• <b>Explainable</b>: spectrogram of each recording with a moving playhead and a murmur-likelihood timeline.<br/>"
-                  "• <b>Private and offline-capable</b>: the AI runs in the browser (ONNX Runtime Web); no audio is uploaded.<br/>"
+                  "• <b>Private</b>: the AI runs in the browser (ONNX Runtime Web); no audio is uploaded.<br/>"
                   "• <b>Transparent validation tab</b> and an honest \"working / not yet / limits\" table.<br/>"
                   "• Education tab on murmurs, recording technique and next steps; phone layout and dark mode.", s["body"]),
     ]
@@ -88,7 +88,8 @@ def build_description(m):
         Paragraph("Results", s["h"]),
         Paragraph(f"{m['folds']}-fold cross-validation, split by child, on {ds['cv_children']} children: official PhysioNet 2022 "
                   f"murmur score <b>{c['weighted_accuracy']['mean']:.2f} ± {c['weighted_accuracy']['std']:.2f}</b> "
-                  f"(simple baseline {b['weighted_accuracy']['mean']:.2f}; best challenge team 0.78 on its hidden test set). "
+                  f"(simple baseline {b['weighted_accuracy']['mean']:.2f}; for context, the best challenge team scored 0.78 on a "
+                  f"harder hidden test set, so this is not a like-for-like comparison). "
                   f"It caught <b>{pct(c['sensitivity']['mean'])}</b> of children with murmurs and cleared "
                   f"<b>{pct(c['specificity']['mean'])}</b> of those without (AUC {c['auc']['mean']:.2f}). "
                   f"{ds['demo_children']} demo children were never used in training.", s["body"]),

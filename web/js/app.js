@@ -35,20 +35,29 @@ function setupTabs() {
 
 // ------------------------------------------------------------ adding recordings
 
-async function addRecording(arrayBuffer, site, name) {
-  const id = nextId++;
-  const url = URL.createObjectURL(new Blob([arrayBuffer]));
-  const rec = { id, site, name, url, result: null };
-  recordings.push(rec);
+// Adds all recordings first (so the result waits for every one of them),
+// then analyses them one by one. Results for recordings that were cleared
+// in the meantime (e.g. the user picked another case) are thrown away.
+async function addRecordings(items) {
+  const recs = items.map(({ buffer, site, name }) => ({
+    id: nextId++, site, name, buffer, url: URL.createObjectURL(new Blob([buffer])), result: null,
+  }));
+  recordings.push(...recs);
   renderAll();
-  try {
-    const samples = await LHFeatures.decodeToRate(arrayBuffer, LHModel.config?.features.sample_rate || 4000);
-    rec.result = await LHModel.analyzeRecording(samples);
-  } catch (err) {
-    console.error(err);
-    rec.error = "Could not read this audio file.";
+  for (const rec of recs) {
+    if (!recordings.includes(rec)) return;
+    try {
+      const samples = await LHFeatures.decodeToRate(rec.buffer, LHModel.config?.features.sample_rate || 4000);
+      const result = await LHModel.analyzeRecording(samples);
+      if (!recordings.includes(rec)) return;
+      rec.result = result;
+    } catch (err) {
+      console.error(err);
+      rec.error = "Could not read this audio file.";
+    }
+    delete rec.buffer;
+    renderAll();
   }
-  renderAll();
 }
 
 function renderDemoCases() {
@@ -67,12 +76,11 @@ async function loadCase(index) {
   currentCase = METRICS.demo_cases[index];
   const caseRef = currentCase;
   if (window.innerWidth < 980) $("#verdict-card").scrollIntoView({ behavior: "smooth", block: "start" });
-  await LHModel.load();
-  for (const r of caseRef.recordings) {
-    if (currentCase !== caseRef) return;
-    const buf = await (await fetch("samples/" + r.file)).arrayBuffer();
-    await addRecording(buf, r.location, r.file);
-  }
+  const items = await Promise.all(caseRef.recordings.map(async r => ({
+    buffer: await (await fetch("samples/" + r.file)).arrayBuffer(), site: r.location, name: r.file,
+  })));
+  if (currentCase !== caseRef) return;
+  await addRecordings(items);
 }
 
 function clearRecordings() {
@@ -95,11 +103,14 @@ function setupUpload() {
   const handle = async (files) => {
     if (currentCase) clearRecordings();
     const order = ["AV", "PV", "TV", "MV"];
+    const used = new Set(recordings.map(r => r.site));
+    const items = [];
     for (const file of files) {
-      const used = new Set(recordings.map(r => r.site));
       const site = siteFromName(file.name) || order.find(s => !used.has(s)) || "Phc";
-      await addRecording(await file.arrayBuffer(), site, file.name);
+      used.add(site);
+      items.push({ buffer: await file.arrayBuffer(), site, name: file.name });
     }
+    await addRecordings(items);
   };
   input.addEventListener("change", () => { handle([...input.files]); input.value = ""; });
   drop.addEventListener("dragover", e => { e.preventDefault(); drop.classList.add("over"); });
@@ -138,7 +149,7 @@ function setupRecorder() {
       const site = siteSelect.value;
       recordings.filter(r => r.site === site).forEach(r => URL.revokeObjectURL(r.url));
       recordings = recordings.filter(r => r.site !== site);
-      await addRecording(await new Blob(chunks).arrayBuffer(), site, `Recording at ${site}`);
+      await addRecordings([{ buffer: await new Blob(chunks).arrayBuffer(), site, name: `Recording at ${site}` }]);
       status.textContent = "Done. Choose the next site and record again.";
     };
     recorder.start();
@@ -409,7 +420,7 @@ function renderValidation() {
       <span class="cmp-track"><span class="cmp-bar ${cls}" style="width:${v * 100}%"></span></span>
       <span class="cmp-val">${v.toFixed(2)}</span></div>`).join("");
   $("#compare-note").textContent =
-    "*The challenge's best score (team HearHeart, among 40 ranked murmur entries) was measured on a hidden test set we cannot access, so the comparison is indicative only.";
+    "*Not a like-for-like comparison. The challenge's best score (team HearHeart, among 40 ranked murmur entries) was measured on a hidden test set we cannot access, and scores on that set are usually lower than cross-validation on the public data. It shows we are in the right range, not that we match the winner.";
 
   const names = ["No murmur", "Murmur", "Unclear"];
   const cm = m.confusion;

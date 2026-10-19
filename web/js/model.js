@@ -24,8 +24,16 @@
     return loading;
   }
 
+  // ONNX Runtime can only run one inference at a time, so calls wait in line.
+  let queue = Promise.resolve();
+  function analyzeRecording(samples) {
+    const job = queue.then(() => analyzeNow(samples));
+    queue = job.catch(() => {});
+    return job;
+  }
+
   // Analyses one recording: spectrogram, heartbeat check, 4-second windows, CNN, average.
-  async function analyzeRecording(samples) {
+  async function analyzeNow(samples) {
     await load();
     const f = config.features;
     const spec = LHFeatures.logMel(samples, f);
