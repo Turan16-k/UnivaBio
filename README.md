@@ -1,5 +1,5 @@
 # LittleHeart
-https://turan16-k.github.io/littleheart/app/
+
 **AI heart murmur screening for children, running privately in the browser.**
 Built for UnivaBio 2026: *Artificial Intelligence for Human Health*.
 
