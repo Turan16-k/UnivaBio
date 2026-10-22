@@ -54,18 +54,22 @@ const Quiz = (() => {
       </div>
       <div class="quiz-reveal" hidden></div>
       <audio preload="auto"></audio>`;
-    const buf = await loadAudio(item);
-    if (items()[index] !== item) return;
+    // Answers work straight away; sound and spectrogram follow when the file arrives.
+    const bufReady = loadAudio(item);
+    card.querySelectorAll(".answer").forEach(b => b.addEventListener("click", () => answer(item, b.dataset.answer === "1", bufReady)));
     const audio = card.querySelector("audio");
-    audio.src = audioUrl;
     const play = card.querySelector(".play");
-    play.addEventListener("click", () => (audio.paused ? audio.play() : audio.pause()));
+    play.addEventListener("click", async () => {
+      await bufReady;
+      if (audio.paused) audio.play(); else audio.pause();
+    });
     audio.addEventListener("play", () => { play.textContent = "❚❚"; });
     audio.addEventListener("pause", () => { play.textContent = "▶"; });
-    card.querySelectorAll(".answer").forEach(b => b.addEventListener("click", () => answer(item, b.dataset.answer === "1", buf)));
+    await bufReady;
+    if (items()[index] === item) audio.src = audioUrl;
   }
 
-  function answer(item, saysMurmur, buf) {
+  function answer(item, saysMurmur, bufReady) {
     if (revealed) return;
     revealed = true;
     const you = saysMurmur === item.murmur;
@@ -87,8 +91,10 @@ const Quiz = (() => {
         <span class="axis-label top">1000 Hz</span><span class="axis-label bottom">25 Hz</span></div>
       <p class="muted small">${t(item.murmur ? "quiz.lookMurmur" : "quiz.lookClear")}</p>
       <button class="btn" id="quiz-next">${index + 1 < items().length ? t("quiz.next") : t("quiz.finish")}</button>`;
-    const wav = LHFeatures.parseWav(buf);
-    if (wav && LHModel.config) Draw.spectrogram(box.querySelector(".spec"), LHFeatures.logMel(wav.samples, LHModel.config.features));
+    bufReady.then(buf => {
+      const wav = LHFeatures.parseWav(buf);
+      if (wav && LHModel.config) Draw.spectrogram(box.querySelector(".spec"), LHFeatures.logMel(wav.samples, LHModel.config.features));
+    });
     box.querySelector("#quiz-next").addEventListener("click", () => { index += 1; render(); });
     renderScore();
   }

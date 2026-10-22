@@ -1,7 +1,7 @@
 // Service worker: keeps LittleHeart working without internet after the first visit.
 // Files are served from the cache straight away and refreshed in the background.
 
-const CACHE = "littleheart-v2";
+const CACHE = "littleheart-v3";
 importScripts("model/metrics.js");   // provides METRICS, which lists the demo and quiz recordings
 
 const FILES = [
