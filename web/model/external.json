@@ -1,0 +1,62 @@
+{
+ "dataset": "PhysioNet/CinC Challenge 2016 training set (normal vs abnormal heart sounds)",
+ "threshold": 0.35,
+ "overall": {
+  "recordings": 3240,
+  "abnormal_share": 0.2052469135802469,
+  "beat_pass": 0.745679012345679,
+  "auc": 0.5727742936242559,
+  "sensitivity": 0.22504892367906065,
+  "specificity": 0.920734908136483
+ },
+ "subsets": {
+  "a": {
+   "recordings": 409,
+   "abnormal_share": 0.7139364303178484,
+   "beat_pass": 0.8508557457212714,
+   "auc": 0.6988357470285181,
+   "sensitivity": 0.14859437751004015,
+   "specificity": 1.0
+  },
+  "b": {
+   "recordings": 490,
+   "abnormal_share": 0.21224489795918366,
+   "beat_pass": 0.6795918367346939,
+   "auc": 0.8140810276679842,
+   "sensitivity": 0.3375,
+   "specificity": 0.9841897233201581
+  },
+  "c": {
+   "recordings": 31,
+   "abnormal_share": 0.7741935483870968,
+   "beat_pass": 0.7741935483870968,
+   "auc": 1.0,
+   "sensitivity": 0.7777777777777778,
+   "specificity": 1.0
+  },
+  "d": {
+   "recordings": 55,
+   "abnormal_share": 0.509090909090909,
+   "beat_pass": 0.7272727272727273,
+   "auc": 0.5754475703324808,
+   "sensitivity": 0.13043478260869565,
+   "specificity": 1.0
+  },
+  "e": {
+   "recordings": 2141,
+   "abnormal_share": 0.08547407753386269,
+   "beat_pass": 0.7286314806165344,
+   "auc": 0.6574796238244514,
+   "sensitivity": 0.16363636363636364,
+   "specificity": 0.9213793103448276
+  },
+  "f": {
+   "recordings": 114,
+   "abnormal_share": 0.2982456140350877,
+   "beat_pass": 0.9736842105263158,
+   "auc": 0.5681451612903226,
+   "sensitivity": 0.5161290322580645,
+   "specificity": 0.5875
+  }
+ }
+}

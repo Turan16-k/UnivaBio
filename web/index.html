@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>LittleHeart</title>
   <meta name="description" content="AI heart murmur screening for children, running privately in the browser.">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M16 28s-11-7-11-15a6 6 0 0 1 11-3 6 6 0 0 1 11 3c0 8-11 15-11 15z' fill='%23d6455d'/></svg>">
+  <meta name="theme-color" content="#c2364f">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -14,11 +17,19 @@
       <div class="brand">
         <svg viewBox="0 0 32 32" class="logo" aria-hidden="true"><path d="M16 28s-11-7-11-15a6 6 0 0 1 11-3 6 6 0 0 1 11 3c0 8-11 15-11 15z"/><path d="M6 16h6l2-4 3 8 2-4h7" class="logo-line"/></svg>
         <span>LittleHeart</span>
+        <select id="lang" class="lang" aria-label="Language">
+          <option value="en">EN</option>
+          <option value="tr">TR</option>
+          <option value="pt">PT</option>
+          <option value="es">ES</option>
+        </select>
       </div>
       <nav class="tabs" role="tablist">
-        <button class="tab active" data-tab="screen" role="tab">Screen a child</button>
-        <button class="tab" data-tab="validation" role="tab">Validation</button>
-        <button class="tab" data-tab="learn" role="tab">About murmurs</button>
+        <button class="tab active" data-tab="screen" role="tab" data-i18n="tab.screen">Screen a child</button>
+        <button class="tab" data-tab="train" role="tab" data-i18n="tab.train">Train your ear</button>
+        <button class="tab" data-tab="log" role="tab" data-i18n="tab.log">Screening log</button>
+        <button class="tab" data-tab="validation" role="tab" data-i18n="tab.validation">Validation</button>
+        <button class="tab" data-tab="learn" role="tab" data-i18n="tab.learn">About murmurs</button>
       </nav>
     </div>
   </header>
@@ -27,48 +38,70 @@
     <!-- =================== SCREEN =================== -->
     <section id="tab-screen" class="panel active">
       <div class="intro">
-        <h1>Hear the heart problems that hide in children.</h1>
-        <p>LittleHeart listens to stethoscope recordings from the four heart valve areas and flags children whose heart
+        <h1 data-i18n="screen.title">Hear the heart problems that hide in children.</h1>
+        <p data-i18n="screen.lead">LittleHeart listens to stethoscope recordings from the four heart valve areas and flags children whose heart
           sounds contain a murmur, so a health worker knows who needs an echocardiogram. The AI runs on this device; no recording is uploaded.</p>
       </div>
 
       <div class="screen-grid">
         <div class="card input-card">
-          <h2>1. Add recordings</h2>
+          <h2 data-i18n="screen.step1">1. Add recordings</h2>
           <div class="source-tabs" role="tablist">
-            <button class="source active" data-source="demo">Real cases</button>
-            <button class="source" data-source="upload">Upload</button>
-            <button class="source" data-source="record">Record</button>
+            <button class="source active" data-source="record" data-i18n="source.record">Record</button>
+            <button class="source" data-source="demo" data-i18n="source.demo">Real cases</button>
+            <button class="source" data-source="upload" data-i18n="source.upload">Upload</button>
           </div>
 
-          <div class="source-panel active" id="source-demo">
-            <p class="muted small">Children from the CirCor dataset that the AI never saw during training. The cardiologist's finding is revealed after the analysis.</p>
-            <div id="demo-cases" class="demo-cases"></div>
-          </div>
-
-          <div class="source-panel" id="source-upload">
-            <p class="muted small">Choose WAV/MP3 recordings. Name files like <code>name_AV.wav</code>, <code>name_MV.wav</code> to set the valve automatically.</p>
-            <label class="file-drop" id="file-drop">
-              <input type="file" id="file-input" accept="audio/*,.wav" multiple>
-              <span><b>Choose files</b> or drop them here</span>
-            </label>
-          </div>
-
-          <div class="source-panel" id="source-record">
-            <p class="muted small">Place a digital stethoscope, or a stethoscope with a phone adapter, on the highlighted spot. Record 15 seconds while the child is calm.</p>
-            <div class="record-row">
-              <select id="record-site" aria-label="Valve area">
-                <option value="AV">Aortic (AV)</option>
-                <option value="PV">Pulmonary (PV)</option>
-                <option value="TV">Tricuspid (TV)</option>
-                <option value="MV">Mitral (MV)</option>
-              </select>
-              <button class="btn" id="record-btn">● Record 15 s</button>
+          <div class="source-panel active" id="source-record">
+            <p class="muted small" data-i18n="record.lead">Use a digital stethoscope, or a stethoscope with a phone adapter. LittleHeart guides you through the four
+              listening sites and checks the sound quality live.</p>
+            <div id="guide-idle">
+              <button class="btn wide" id="guide-start" data-i18n="record.start">● Start guided screening</button>
+              <details class="one-site">
+                <summary data-i18n="record.oneSite">Record a single site instead</summary>
+                <div class="record-row">
+                  <select id="record-site" aria-label="Valve area">
+                    <option value="AV" data-i18n="site.AV.long">Aortic (AV)</option>
+                    <option value="PV" data-i18n="site.PV.long">Pulmonary (PV)</option>
+                    <option value="TV" data-i18n="site.TV.long">Tricuspid (TV)</option>
+                    <option value="MV" data-i18n="site.MV.long">Mitral (MV)</option>
+                  </select>
+                  <button class="btn" id="record-one" data-i18n="record.one">● Record 15 s</button>
+                </div>
+              </details>
+            </div>
+            <div id="guide-live" class="guide-live" hidden>
+              <div class="guide-step" id="guide-step"></div>
+              <div class="guide-instruction" id="guide-instruction"></div>
+              <canvas id="live-wave" class="live-wave" aria-hidden="true"></canvas>
+              <div class="live-row">
+                <span id="beat-chip" class="chip-status"></span>
+                <span id="level-meter" class="level"><span></span></span>
+                <span id="countdown" class="countdown"></span>
+              </div>
+              <div class="guide-actions">
+                <button class="btn-ghost" id="guide-redo" data-i18n="record.redo">Restart this site</button>
+                <button class="btn-ghost" id="guide-skip" data-i18n="record.skip">Skip site</button>
+                <button class="btn-ghost" id="guide-stop" data-i18n="record.stop">Stop</button>
+              </div>
             </div>
             <p id="record-status" class="small muted" aria-live="polite"></p>
           </div>
 
-          <h2 class="mt">2. Listening sites</h2>
+          <div class="source-panel" id="source-demo">
+            <p class="muted small" data-i18n="demo.lead">Children from the CirCor dataset that the AI never saw during training. The cardiologist's finding is revealed after the analysis.</p>
+            <div id="demo-cases" class="demo-cases"></div>
+          </div>
+
+          <div class="source-panel" id="source-upload">
+            <p class="muted small" data-i18n-html="upload.lead">Choose WAV/MP3 recordings. Name files like <code>name_AV.wav</code>, <code>name_MV.wav</code> to set the valve automatically.</p>
+            <label class="file-drop" id="file-drop">
+              <input type="file" id="file-input" accept="audio/*,.wav" multiple>
+              <span data-i18n-html="upload.drop"><b>Choose files</b> or drop them here</span>
+            </label>
+          </div>
+
+          <h2 class="mt" data-i18n="screen.step2">2. Listening sites</h2>
           <div class="chest-wrap">
             <svg viewBox="30 20 160 170" class="chest" id="chest" aria-label="Chest diagram with the four auscultation sites">
               <path class="torso" d="M40 20 Q110 0 180 20 L195 70 Q200 150 185 220 L35 220 Q20 150 25 70 Z"/>
@@ -80,28 +113,24 @@
               <g class="site" data-site="MV" transform="translate(150 132)"><circle r="13"/><text>MV</text></g>
             </svg>
             <ul class="site-legend">
-              <li><b>AV</b> aortic · 2nd space, right of sternum</li>
-              <li><b>PV</b> pulmonary · 2nd space, left of sternum</li>
-              <li><b>TV</b> tricuspid · lower left sternum</li>
-              <li><b>MV</b> mitral · apex, 5th space</li>
+              <li><b>AV</b> <span data-i18n="site.AV.where">aortic · 2nd space, right of sternum</span></li>
+              <li><b>PV</b> <span data-i18n="site.PV.where">pulmonary · 2nd space, left of sternum</span></li>
+              <li><b>TV</b> <span data-i18n="site.TV.where">tricuspid · lower left sternum</span></li>
+              <li><b>MV</b> <span data-i18n="site.MV.where">mitral · apex, 5th space</span></li>
             </ul>
           </div>
         </div>
 
         <div class="results-col">
           <div class="card verdict-card" id="verdict-card">
-            <h2>3. Result</h2>
-            <div id="verdict" class="verdict empty">
-              <div class="verdict-icon" aria-hidden="true">♡</div>
-              <div>
-                <div class="verdict-title">No recordings yet</div>
-                <div class="verdict-text">Pick a real case or add recordings to start.</div>
-              </div>
-            </div>
+            <h2 data-i18n="screen.step3">3. Result</h2>
+            <div id="verdict" class="verdict empty"></div>
             <div id="truth" class="truth" hidden></div>
             <div class="verdict-actions" id="verdict-actions" hidden>
-              <button class="btn-ghost" id="print-btn">Print screening note</button>
-              <button class="btn-ghost" id="clear-btn">New child</button>
+              <input id="child-id" class="child-id" data-i18n-placeholder="log.childId" placeholder="Child ID or initials" maxlength="40">
+              <button class="btn-ghost" id="save-btn" data-i18n="log.save">Save to log</button>
+              <button class="btn-ghost" id="print-btn" data-i18n="result.print">Print screening note</button>
+              <button class="btn-ghost" id="clear-btn" data-i18n="result.new">New child</button>
             </div>
             <p class="print-only small" id="print-meta"></p>
           </div>
@@ -110,15 +139,67 @@
         </div>
       </div>
 
-      <p class="disclaimer">LittleHeart is a research prototype for screening support, not a medical device and not a diagnosis.
-        It was trained on children in north-east Brazil recorded with one stethoscope model; accuracy on other devices and populations is unknown.
-        A child who seems unwell should see a clinician whatever the result.</p>
+      <p class="disclaimer" data-i18n="screen.disclaimer">LittleHeart is a research prototype for screening support, not a medical device and not a diagnosis.
+        It was trained on children in north-east Brazil recorded with one stethoscope model, and in a test on other devices and mostly adult patients
+        it worked much less well. A child who seems unwell should see a clinician whatever the result.</p>
+    </section>
+
+    <!-- =================== TRAIN YOUR EAR =================== -->
+    <section id="tab-train" class="panel">
+      <div class="intro">
+        <h1 data-i18n="train.title">Can you hear a murmur?</h1>
+        <p data-i18n="train.lead">Practise on 18 real children's heart sounds. Listen, decide, then see the cardiologist's answer and what the AI said.
+          The AI answers come from a model that never heard that child, so you are competing fairly.</p>
+      </div>
+      <div class="train-grid">
+        <div class="card" id="quiz-card"></div>
+        <div class="train-side">
+          <div class="card">
+            <h2 data-i18n="train.score">Score</h2>
+            <div class="scoreboard" id="scoreboard"></div>
+          </div>
+          <div class="card">
+            <h2 data-i18n="train.howTitle">How to listen</h2>
+            <ul class="tips">
+              <li data-i18n="train.tip1">Find the rhythm first: "lub" (S1) then "dub" (S2), then a longer pause.</li>
+              <li data-i18n="train.tip2">Now listen only to the short gap between lub and dub. Is it silent, or is there a whoosh?</li>
+              <li data-i18n="train.tip3">On the spectrogram, a murmur is a haze of colour between the bright vertical beats.</li>
+              <li data-i18n="train.tip4">Use headphones. Laptop speakers cannot play the deepest heart sounds.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================== SCREENING LOG =================== -->
+    <section id="tab-log" class="panel">
+      <div class="intro">
+        <h1 data-i18n="log.title">Screening log</h1>
+        <p data-i18n="log.lead">Keep track of a school or village screening day: who was screened, who needs an echocardiogram and who must be recorded again.
+          The log is stored only on this device.</p>
+      </div>
+      <div class="grid four" id="log-stats"></div>
+      <div class="card">
+        <div class="log-toolbar">
+          <div class="filter" role="group">
+            <button class="chip active" data-filter="all" data-i18n="log.all">All</button>
+            <button class="chip" data-filter="1" data-i18n="log.referred">Refer</button>
+            <button class="chip" data-filter="2" data-i18n="log.rerecord">Record again</button>
+            <button class="chip" data-filter="0" data-i18n="log.clear">No murmur</button>
+          </div>
+          <div class="log-actions">
+            <button class="btn-ghost" id="log-export" data-i18n="log.export">Export CSV</button>
+            <button class="btn-ghost" id="log-wipe" data-i18n="log.wipe">Delete all</button>
+          </div>
+        </div>
+        <div class="table-wrap"><table class="log-table" id="log-table"></table></div>
+      </div>
     </section>
 
     <!-- =================== VALIDATION =================== -->
     <section id="tab-validation" class="panel">
       <div class="intro">
-        <h1>How well does it work?</h1>
+        <h1 data-i18n="val.title">How well does it work?</h1>
         <p id="val-intro"></p>
       </div>
 
@@ -126,74 +207,102 @@
 
       <div class="grid two">
         <div class="card">
-          <h2>Compared with other approaches</h2>
-          <p class="muted small">Official PhysioNet 2022 murmur score (weighted accuracy). Higher is better.</p>
+          <h2 data-i18n="val.compare">Compared with other approaches</h2>
+          <p class="muted small" data-i18n="val.compareLead">Official PhysioNet 2022 murmur score (weighted accuracy). Higher is better.</p>
           <div id="compare" class="compare"></div>
           <p class="muted small" id="compare-note"></p>
         </div>
         <div class="card">
-          <h2>Every child in cross-validation</h2>
-          <p class="muted small">Rows: cardiologist's finding. Columns: LittleHeart's answer.</p>
+          <h2 data-i18n="val.confusion">Every child in cross-validation</h2>
+          <p class="muted small" data-i18n="val.confusionLead">Rows: cardiologist's finding. Columns: LittleHeart's answer.</p>
           <div id="confusion" class="confusion"></div>
         </div>
       </div>
 
       <div class="grid two">
         <div class="card">
-          <h2>How the AI works</h2>
+          <h2 data-i18n="val.missTitle">Which murmurs does it miss?</h2>
+          <p class="muted small" data-i18n="val.missLead">Children with a murmur in cross-validation, by loudness grade (I = faintest, III = loud).</p>
+          <div id="by-grade" class="stack-chart"></div>
+          <div class="legend-row">
+            <span><i class="sw bad"></i><span data-i18n="val.legendRefer">referred</span></span>
+            <span><i class="sw warn"></i><span data-i18n="val.legendRerecord">asked to re-record</span></span>
+            <span><i class="sw miss"></i><span data-i18n="val.legendMissed">missed</span></span>
+          </div>
+          <p class="small" id="grade-note"></p>
+        </div>
+        <div class="card">
+          <h2 data-i18n="val.ageTitle">By age group</h2>
+          <div class="table-wrap"><table class="data-table" id="by-age"></table></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="val.robustTitle">Does it survive real-world sound?</h2>
+        <p class="muted small" id="robust-lead"></p>
+        <div class="table-wrap"><table class="data-table" id="robustness"></table></div>
+        <p class="small" id="robust-note"></p>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="val.externalTitle">Test on a completely different dataset</h2>
+        <p class="muted small" data-i18n="val.externalLead">PhysioNet/CinC Challenge 2016: 3,240 recordings collected by six research groups in different countries,
+          mostly from adults, with different stethoscopes. LittleHeart never trained on any of it. Its labels are "normal" or "abnormal heart",
+          which is not the same as "murmur": for example, coronary artery disease is abnormal but usually has no murmur.</p>
+        <div class="table-wrap"><table class="data-table" id="external"></table></div>
+        <p class="small" id="external-note"></p>
+      </div>
+
+      <div class="grid two">
+        <div class="card">
+          <h2 data-i18n="val.howTitle">How the AI works</h2>
           <ol class="steps">
-            <li><b>Spectrogram.</b> Each recording is turned into a log-mel spectrogram: a picture of which pitches (25–1000 Hz) are loud every 16 ms.</li>
-            <li><b>4-second windows.</b> The picture is cut into overlapping 4-second windows, about 4–8 heartbeats each.</li>
-            <li><b>CNN.</b> A small convolutional neural network (4 layers, about 61,000 weights) scores each window: murmur, no murmur, or unclear.</li>
-            <li><b>Per valve.</b> Window scores are averaged for each recording.</li>
-            <li><b>Per child.</b> If any valve looks like a murmur, the child is referred. If none does but a recording is unclear, it asks for a re-recording.</li>
+            <li data-i18n-html="val.how1"><b>Spectrogram.</b> Each recording is turned into a log-mel spectrogram: a picture of which pitches (25–1000 Hz) are loud every 16 ms.</li>
+            <li data-i18n-html="val.how2"><b>4-second windows.</b> The picture is cut into overlapping 4-second windows, about 4–8 heartbeats each.</li>
+            <li data-i18n-html="val.how3"><b>CNN.</b> A small convolutional neural network (4 layers, about 61,000 weights) scores each window: murmur, no murmur, or unclear.</li>
+            <li data-i18n-html="val.how4"><b>Trained for the real world.</b> During training, recordings are randomly damaged with background noise and phone-like microphones, so the AI learns to cope with them.</li>
+            <li data-i18n-html="val.how5"><b>Per child.</b> Window scores are averaged per valve. If any valve looks like a murmur, the child is referred; if a recording is unclear, it asks for a re-recording.</li>
           </ol>
         </div>
         <div class="card">
-          <h2>How we tested it</h2>
+          <h2 data-i18n="val.testedTitle">How we tested it</h2>
           <ul class="checks">
-            <li><b>Split by child, not recording.</b> All recordings of a child are either in training or in testing, never both.</li>
-            <li><b>Cross-validation.</b> Every child is tested once by a model that never heard them.</li>
-            <li><b>Thresholds chosen on separate data.</b> Decision cut-offs come from a validation split inside the training folds.</li>
-            <li><b>Baseline.</b> A logistic regression on average spectrum shows how much the CNN adds.</li>
-            <li><b>Untouched demo cases.</b> The 10 real cases on the first tab were picked at random and removed before any training.
-              LittleHeart agrees with the cardiologist on 7. The other 3 are children without a murmur that it asks to re-record; it misses none of the 4 murmurs.</li>
+            <li data-i18n-html="val.tested1"><b>Split by child, not recording.</b> All recordings of a child are either in training or in testing, never both.</li>
+            <li data-i18n-html="val.tested2"><b>Cross-validation.</b> Every child is tested once by a model that never heard them.</li>
+            <li data-i18n-html="val.tested3"><b>Thresholds chosen on separate data.</b> Decision cut-offs come from a validation split inside the training folds.</li>
+            <li data-i18n-html="val.tested4"><b>Baseline.</b> A logistic regression on the average spectrum shows how much the CNN adds.</li>
+            <li data-i18n-html="val.tested5"><b>Untouched demo cases.</b> The 10 real cases on the first tab were picked at random and removed before any training.</li>
+            <li data-i18n-html="val.tested6"><b>External test.</b> A second, unrelated dataset checks how far the results carry over.</li>
           </ul>
         </div>
       </div>
 
       <div class="card safety-card">
-        <h2>Safety check: is it really a heartbeat?</h2>
-        <p class="muted small">The CNN has only ever heard heart sounds, so it could give a confident but meaningless answer for speech or noise.
+        <h2 data-i18n="val.safetyTitle">Safety check: is it really a heartbeat?</h2>
+        <p class="muted small" data-i18n="val.safetyLead">The CNN has only ever heard heart sounds, so it could give a confident but meaningless answer for speech or noise.
           Before trusting it, LittleHeart checks that the low-pitched loudness rises and falls with a regular rhythm between 40 and 220 beats per minute.
           Recordings that fail are never called "murmur" or "no murmur"; the health worker is asked to record again.</p>
         <div id="safety" class="safety"></div>
       </div>
 
       <div class="card">
-        <h2>Honest status</h2>
+        <h2 data-i18n="val.statusTitle">Honest status</h2>
         <div class="status-grid">
-          <div><h3 class="ok-text">Working now</h3><ul id="status-done">
-            <li>Trained, cross-validated murmur model on 942 children</li>
-            <li>In-browser analysis of real recordings, uploads and microphone input</li>
-            <li>Per-valve explanation: spectrogram with murmur timeline</li>
-            <li>Python and JavaScript feature code verified to match</li>
-            <li>Heartbeat safety check that refuses noise, tones and most speech</li>
+          <div><h3 class="ok-text" data-i18n="val.done">Working now</h3><ul>
+            <li data-i18n="val.done1">Cross-validated murmur model on 942 children, trained to cope with noise and phone-like microphones</li>
+            <li data-i18n="val.done2">Guided recording with a live heartbeat and sound-level check</li>
+            <li data-i18n="val.done3">Per-valve explanation: spectrogram with murmur timeline</li>
+            <li data-i18n="val.done4">Ear-training mode, screening log with CSV export, 4 languages</li>
+            <li data-i18n="val.done5">Works offline after the first visit and can be installed like an app</li>
+            <li data-i18n="val.done6">Python and JavaScript code verified to give identical numbers</li>
           </ul></div>
-          <div><h3 class="warn-text">Not done yet</h3><ul>
-            <li>Testing with other stethoscopes and phone adapters</li>
-            <li>Validation in a new population or prospective study</li>
-            <li>Telling innocent from pathological murmurs</li>
-            <li>Clinical review and regulatory approval</li>
+          <div><h3 class="warn-text" data-i18n="val.notyet">Not done yet</h3><ul>
+            <li data-i18n="val.notyet1">Testing with real low-cost stethoscope adapters</li>
+            <li data-i18n="val.notyet2">Validation with children in a new region, ideally a prospective study</li>
+            <li data-i18n="val.notyet3">Telling innocent from pathological murmurs (needs echocardiography-labelled data)</li>
+            <li data-i18n="val.notyet4">Review by paediatric cardiologists and regulatory approval</li>
           </ul></div>
-          <div><h3 class="bad-text">Known limits</h3><ul>
-            <li>Misses about 1 in <span id="miss-rate">4</span> murmurs in testing</li>
-            <li>Trained on one region (Brazil) and one device</li>
-            <li>Cross-validation on public data is not the challenge's hidden test set</li>
-            <li>Plain phone microphones are much noisier than stethoscopes</li>
-            <li>Rhythmic sounds that are not heartbeats (e.g. a metronome) can pass the safety check</li>
-            <li>Validation scores above do not include the heartbeat check, which asks for a re-recording of about 4% of real recordings</li>
-          </ul></div>
+          <div><h3 class="bad-text" data-i18n="val.limits">Known limits</h3><ul id="limits"></ul></div>
         </div>
       </div>
     </section>
@@ -201,34 +310,44 @@
     <!-- =================== LEARN =================== -->
     <section id="tab-learn" class="panel">
       <div class="intro">
-        <h1>Why listen to children's hearts?</h1>
-        <p>Congenital heart disease is the most common birth defect, and rheumatic heart disease still damages the hearts of millions of
+        <h1 data-i18n="learn.title">Why listen to children's hearts?</h1>
+        <p data-i18n="learn.lead">Congenital heart disease is the most common birth defect, and rheumatic heart disease still damages the hearts of millions of
           children and young people. Both are often first noticed as a murmur, but echocardiography and cardiologists are scarce where these diseases are most common.</p>
       </div>
       <div class="grid three">
-        <article class="card"><h2>What is a murmur?</h2>
-          <p>A whooshing sound between the normal "lub-dub" heart sounds, caused by turbulent blood flow. Many murmurs in children are innocent, but some come from holes in the heart or damaged valves.</p></article>
-        <article class="card"><h2>Who is LittleHeart for?</h2>
-          <p>Community health workers, school screening programmes and primary care clinics that have a stethoscope but no cardiologist, and need to decide which children to send for an echocardiogram.</p></article>
-        <article class="card"><h2>Why AI?</h2>
-          <p>Hearing a murmur takes years of practice, and even trained listeners disagree. An AI that has heard thousands of recordings can give every health worker a consistent second opinion.</p></article>
-        <article class="card"><h2>The four sites</h2>
-          <p>Each valve is best heard at one spot: aortic and pulmonary in the 2nd rib space either side of the breastbone, tricuspid at its lower left edge, and mitral at the apex of the heart.</p></article>
-        <article class="card"><h2>Recording tips</h2>
-          <p>Use a quiet room, keep the child calm and still, press the stethoscope firmly on bare skin, and record at least 10 seconds per site. Crying and talking make recordings unclear.</p></article>
-        <article class="card"><h2>What happens next?</h2>
-          <p>A "refer" result means the child should have an echocardiogram, the ultrasound test that shows the heart's structure. A "no murmur" result does not rule out heart disease.</p></article>
+        <article class="card"><h2 data-i18n="learn.q1">What is a murmur?</h2>
+          <p data-i18n="learn.a1">A whooshing sound between the normal "lub-dub" heart sounds, caused by turbulent blood flow. Many murmurs in children are innocent, but some come from holes in the heart or damaged valves.</p></article>
+        <article class="card"><h2 data-i18n="learn.q2">Who is LittleHeart for?</h2>
+          <p data-i18n="learn.a2">Community health workers, school screening programmes and primary care clinics that have a stethoscope but no cardiologist, and need to decide which children to send for an echocardiogram.</p></article>
+        <article class="card"><h2 data-i18n="learn.q3">Why AI?</h2>
+          <p data-i18n="learn.a3">Hearing a murmur takes years of practice, and even trained listeners disagree. An AI that has heard thousands of recordings can give every health worker a consistent second opinion.</p></article>
+        <article class="card"><h2 data-i18n="learn.q4">The four sites</h2>
+          <p data-i18n="learn.a4">Each valve is best heard at one spot: aortic and pulmonary in the 2nd rib space either side of the breastbone, tricuspid at its lower left edge, and mitral at the apex of the heart.</p></article>
+        <article class="card"><h2 data-i18n="learn.q5">Recording tips</h2>
+          <p data-i18n="learn.a5">Use a quiet room, keep the child calm and still, press the stethoscope firmly on bare skin, and record at least 10 seconds per site. Crying and talking make recordings unclear.</p></article>
+        <article class="card"><h2 data-i18n="learn.q6">What happens next?</h2>
+          <p data-i18n="learn.a6">A "refer" result means the child should have an echocardiogram, the ultrasound test that shows the heart's structure. A "no murmur" result does not rule out heart disease.</p></article>
       </div>
-      <p class="muted small">Data: CirCor DigiScope Phonocardiogram Dataset (Oliveira et al., IEEE JBHI 2022), PhysioNet, CC BY 4.0.</p>
+      <p class="muted small" data-i18n="learn.data">Data: CirCor DigiScope Phonocardiogram Dataset (Oliveira et al., IEEE JBHI 2022) and PhysioNet/CinC Challenge 2016 (Liu et al. 2016), PhysioNet. Recordings used under their open licences.</p>
     </section>
   </main>
 
-  <footer class="wrap footer">LittleHeart · UnivaBio 2026: AI for Human Health · Research prototype, not a medical device</footer>
+  <footer class="wrap footer">
+    <span data-i18n="footer">LittleHeart · UnivaBio 2026: AI for Human Health · Research prototype, not a medical device</span>
+    <span id="offline-status" class="offline-status" hidden></span>
+  </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.min.js"></script>
+  <script src="vendor/ort/ort.wasm.min.js"></script>
   <script src="model/metrics.js"></script>
+  <script src="js/i18n.js"></script>
   <script src="js/features.js"></script>
   <script src="js/model.js"></script>
+  <script src="js/draw.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/guided.js"></script>
+  <script src="js/quiz.js"></script>
+  <script src="js/log.js"></script>
+  <script src="js/validation.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>

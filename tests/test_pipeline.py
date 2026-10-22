@@ -101,3 +101,56 @@ def test_exported_model_outputs_probabilities():
     probs = session.run(None, {"logmel": x})[0]
     assert probs.shape == (3, 3)
     assert np.allclose(probs.sum(axis=1), 1, atol=1e-5)
+
+
+def test_add_noise_hits_requested_snr():
+    import evaluation as E
+    rng = np.random.default_rng(3)
+    x = np.sin(2 * np.pi * 100 * np.arange(40000) / F.SAMPLE_RATE)
+    for snr in (20, 10, 5):
+        noise = E.add_noise(x, snr, rng) - x
+        measured = 10 * np.log10(np.mean(x ** 2) / np.mean(noise ** 2))
+        assert measured == pytest.approx(snr, abs=0.3)
+
+
+def test_augmented_training_window_has_model_shape():
+    import evaluation as E
+    rng = np.random.default_rng(4)
+    audio = (rng.normal(size=F.SAMPLE_RATE * 9) * 3000).astype(np.int16)
+    short = audio[:F.SAMPLE_RATE * 2]
+    for a in (audio, short):
+        for _ in range(5):
+            assert E.augmented_window(a, rng).shape == (F.N_MELS, F.WINDOW_FRAMES)
+
+
+def test_breakdown_counts_referred_rerecord_missed():
+    import evaluation as E
+    kids = [{"label": PRESENT, "pred": PRESENT, "grade": "I/VI"},
+            {"label": PRESENT, "pred": ABSENT, "grade": "I/VI"},
+            {"label": PRESENT, "pred": UNKNOWN, "grade": "III/VI"},
+            {"label": ABSENT, "pred": PRESENT, "grade": "nan"}]
+    out = E.breakdown(kids, "grade", ["I/VI", "II/VI", "III/VI"], PRESENT, UNKNOWN, ABSENT)
+    assert out == [{"group": "I/VI", "n": 2, "referred": 1, "rerecord": 0, "missed": 1},
+                   {"group": "III/VI", "n": 1, "referred": 0, "rerecord": 1, "missed": 0}]
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="Node.js not installed")
+def test_every_text_is_translated():
+    out = subprocess.run(["node", str(ROOT / "tests" / "i18n_check.cjs")], capture_output=True, text=True)
+    assert out.returncode == 0, out.stdout
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="Node.js not installed")
+def test_browser_wav_encoder_round_trips(tmp_path):
+    script = tmp_path / "enc.cjs"
+    script.write_text(
+        "const fs=require('fs'),vm=require('vm');"
+        "const ctx=vm.createContext({});"
+        f"vm.runInContext(fs.readFileSync({json.dumps(str(ROOT / 'web' / 'js' / 'guided.js'))},'utf8')+';this.G=Guided;',ctx);"
+        "const x=new Float32Array(48000);for(let i=0;i<x.length;i++)x[i]=0.5*Math.sin(2*Math.PI*220*i/48000);"
+        f"fs.writeFileSync({json.dumps(str(tmp_path / 'out.wav'))},Buffer.from(ctx.G.encodeWav(x,48000)));")
+    subprocess.run(["node", str(script)], check=True)
+    from scipy.io import wavfile
+    rate, y = wavfile.read(tmp_path / "out.wav")
+    assert rate == 48000 and len(y) == 48000
+    assert np.abs(y).max() == pytest.approx(0.5 * 32767, rel=0.01)

@@ -5,11 +5,16 @@ LittleHeart - training and evaluation.
 2. Holds out a few children as demo cases that the model never trains on.
 3. Runs 5-fold cross-validation, split by CHILD (never by recording), comparing
    our CNN against a simple baseline using the official PhysioNet 2022 score.
+   Inside every fold it also re-tests the model on damaged audio (noise,
+   phone-like microphone, handling rumble) and keeps each child's answer for
+   the error analysis and the "Train your ear" quiz (see evaluation.py).
 4. Trains the final model on all remaining children and exports it to ONNX
-   for the browser, plus the metrics and demo cases.
+   for the browser, plus the metrics, analysis, demo cases and quiz.
 
-Run:  python ml/train.py            (about 30-60 minutes on a laptop CPU)
-      python ml/train.py --quick    (2 folds, few epochs, to test the pipeline)
+Run:  python ml/train.py --robust   (deployed model: trained with noise and phone-like damage, ~2 h)
+      python ml/train.py            (original model trained on clean audio only, ~1.5 h)
+      python ml/train.py --quick    (1 fold, 1 epoch, to test the pipeline)
+Options: --out DIR writes to DIR instead of web/, --no-final skips the final model.
 """
 
 import argparse
@@ -22,10 +27,12 @@ from pathlib import Path
 import numpy as np
 import torch
 import torch.nn as nn
+from scipy.io import wavfile
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import StratifiedKFold, train_test_split
 
+import evaluation as E
 import features as F
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -66,6 +73,9 @@ def load_patients():
             "murmur_locations": sorted(murmur_locs),
             "timing": r["Systolic murmur timing"],
             "grade": r["Systolic murmur grading"],
+            "pitch": r["Systolic murmur pitch"],
+            "quality": r["Systolic murmur quality"],
+            "shape": r["Systolic murmur shape"],
             "outcome": r["Outcome"],
             "recordings": recs,
         })
@@ -136,7 +146,7 @@ def random_window(spec, rng):
     return F.cut_window(spec, start)
 
 
-def train_cnn(train_recs, val_patients, epochs, rng, log=print):
+def train_cnn(train_recs, val_patients, epochs, rng, log=print, robust=False):
     torch.manual_seed(int(rng.integers(1e9)))
     mean, std = band_stats(train_recs)
     model = MurmurCNN(mean, std)
@@ -153,7 +163,10 @@ def train_cnn(train_recs, val_patients, epochs, rng, log=print):
         total = 0.0
         for i in range(0, len(order), 64):
             batch = order[i:i + 64]
-            x = np.stack([random_window(train_recs[j]["spec"], rng) for j in batch])[:, None]
+            if robust:
+                x = np.stack([E.augmented_window(train_recs[j]["audio"], rng) for j in batch])[:, None]
+            else:
+                x = np.stack([random_window(train_recs[j]["spec"], rng) for j in batch])[:, None]
             x = x + rng.normal(0, 0.05, x.shape).astype(np.float32)
             y = torch.tensor(labels[batch])
             opt.zero_grad()
@@ -281,26 +294,71 @@ def summarize(fold_metrics):
                 "std": float(np.std([m[k] for m in fold_metrics]))} for k in keys}
 
 
+def evaluate_fold(model, tp, tu, test_p, noise_rng, results):
+    """Scores the fold's unseen children on clean and damaged audio and keeps
+    each child's and recording's answer for the error analysis and quiz."""
+    predict = lambda w: predict_windows(model, w)  # noqa: E731
+    y = [p["label"] for p in test_p]
+    for cond in E.CONDITIONS:
+        child_probs, passed, total = [], 0, 0
+        for p in test_p:
+            rec_probs = []
+            for r in p["recordings"]:
+                spec = r["spec"] if cond == "clean" else F.log_mel(E.degrade(F.load_wav(r["path"]), cond, noise_rng))
+                rp = recording_probs(predict, spec)
+                ok = E.beat_ok(spec)
+                rec_probs.append(rp)
+                passed += ok
+                total += 1
+                if cond == "clean":
+                    results["recordings"].append({
+                        "file": r["path"].name, "location": r["location"], "label": int(r["label"]),
+                        "present_prob": float(rp[PRESENT]), "ai_flags": bool(rp[PRESENT] >= tp), "beat_ok": ok,
+                        "grade": p["grade"], "timing": p["timing"], "pitch": p["pitch"],
+                        "quality": p["quality"], "shape": p["shape"]})
+            rec_probs = np.array(rec_probs)
+            child_probs.append((rec_probs[:, PRESENT].max(), rec_probs[:, UNKNOWN].max()))
+        child_probs = np.array(child_probs)
+        pred = decide(child_probs, tp, tu)
+        m = screening_metrics(y, pred, child_probs[:, 0])
+        m["beat_pass"] = passed / total
+        results["conditions"][cond].append(m)
+        if cond == "clean":
+            for p, lab in zip(test_p, pred):
+                results["children"].append({"id": p["id"], "label": int(p["label"]), "pred": int(lab),
+                                            "grade": p["grade"], "timing": p["timing"], "age": p["age"]})
+    return results["conditions"]["clean"][-1]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--quick", action="store_true")
+    ap.add_argument("--robust", action="store_true", help="train with noise and phone-like damage")
+    ap.add_argument("--out", default=str(ROOT / "web"), help="folder for model/, samples/ and quiz/")
+    ap.add_argument("--no-final", action="store_true", help="only cross-validate, do not export a model")
     args = ap.parse_args()
-    n_folds, epochs = (2, 2) if args.quick else (5, 20)
+    n_folds, epochs = (5, 1) if args.quick else (5, 20)
     rng = np.random.default_rng(SEED)
+    noise_rng = np.random.default_rng(SEED + 1)   # separate, so training randomness is unchanged
     t0 = time.time()
 
     patients = load_patients()
     load_spectrograms(patients)
+    if args.robust:
+        for p in patients:
+            for r in p["recordings"]:
+                r["audio"] = wavfile.read(r["path"])[1]
     demo = pick_demo_patients(patients, rng)
     demo_ids = {p["id"] for p in demo}
     pool = [p for p in patients if p["id"] not in demo_ids]
     n_recs = sum(len(p["recordings"]) for p in patients)
-    print(f"{len(patients)} children, {n_recs} recordings; {len(demo)} held out as demo cases")
+    print(f"{len(patients)} children, {n_recs} recordings; {len(demo)} held out as demo cases; "
+          f"{'robust' if args.robust else 'clean-only'} training")
 
     y_pool = np.array([p["label"] for p in pool])
     folds = StratifiedKFold(n_folds, shuffle=True, random_state=SEED).split(np.zeros(len(pool)), y_pool)
-    cnn_folds, base_folds = [], []
-    oof_true, oof_pred = [], []
+    base_folds = []
+    results = {"conditions": {c: [] for c in E.CONDITIONS}, "children": [], "recordings": []}
 
     for k, (tr_idx, te_idx) in enumerate(folds):
         train_p = [pool[i] for i in tr_idx]
@@ -311,75 +369,111 @@ def main():
         y_test = [p["label"] for p in test_p]
         print(f"Fold {k + 1}/{n_folds}: train {len(inner_train)}, val {len(inner_val)}, test {len(test_p)} children")
 
-        model, (tp, tu) = train_cnn(train_recs, inner_val, epochs, rng)
-        probs = patient_probs(lambda w: predict_windows(model, w), test_p)
-        pred = decide(probs, tp, tu)
-        m = screening_metrics(y_test, pred, probs[:, 0])
-        cnn_folds.append(m)
-        oof_true += y_test
-        oof_pred += list(pred)
+        model, (tp, tu) = train_cnn(train_recs, inner_val, epochs, rng, robust=args.robust)
+        m = evaluate_fold(model, tp, tu, test_p, noise_rng, results)
 
         base = train_baseline(train_recs)
         bt, _ = tune_thresholds(baseline_patient_probs(base, inner_val), [p["label"] for p in inner_val])
         bprobs = baseline_patient_probs(base, test_p)
         base_folds.append(screening_metrics(y_test, decide(bprobs, *bt), bprobs[:, 0]))
+        damaged = " ".join(f"{c} {results['conditions'][c][-1]['weighted_accuracy']:.3f}" for c in E.CONDITIONS[1:])
         print(f"  CNN weighted acc {m['weighted_accuracy']:.3f} (sens {m['sensitivity']:.2f}, "
-              f"spec {m['specificity']:.2f}, AUC {m['auc']:.3f})  |  baseline {base_folds[-1]['weighted_accuracy']:.3f}")
+              f"spec {m['specificity']:.2f}, AUC {m['auc']:.3f})  |  baseline {base_folds[-1]['weighted_accuracy']:.3f}"
+              f"  |  {damaged}  ({(time.time() - t0) / 60:.0f} min)", flush=True)
+        if args.quick:
+            break
 
-    cnn_summary, base_summary = summarize(cnn_folds), summarize(base_folds)
-    confusion = [[int(np.sum((np.array(oof_true) == t) & (np.array(oof_pred) == p))) for p in range(3)] for t in range(3)]
+    cond_summary = {c: summarize_robust(ms) for c, ms in results["conditions"].items()}
+    cnn_summary, base_summary = summarize(results["conditions"]["clean"]), summarize(base_folds)
+    oof_true = np.array([c["label"] for c in results["children"]])
+    oof_pred = np.array([c["pred"] for c in results["children"]])
+    confusion = [[int(np.sum((oof_true == t) & (oof_pred == p))) for p in range(3)] for t in range(3)]
+    analysis = {
+        "by_grade": E.breakdown(results["children"], "grade", ["I/VI", "II/VI", "III/VI"], PRESENT, UNKNOWN, ABSENT),
+        "by_timing": E.breakdown(results["children"], "timing",
+                                 ["Early-systolic", "Mid-systolic", "Late-systolic", "Holosystolic"],
+                                 PRESENT, UNKNOWN, ABSENT),
+        "by_age": E.by_age(results["children"], PRESENT, ABSENT),
+        "robustness": [{"condition": c, "name": E.CONDITION_NAMES[c], **cond_summary[c]} for c in E.CONDITIONS],
+    }
     print("CNN     ", {k: round(v["mean"], 3) for k, v in cnn_summary.items()})
     print("Baseline", {k: round(v["mean"], 3) for k, v in base_summary.items()})
+    print(json.dumps(analysis, indent=1), flush=True)
 
-    print("Training final model on all non-demo children...")
-    final_train, final_val = train_test_split(pool, test_size=0.15, random_state=SEED, stratify=y_pool)
-    model, (tp, tu) = train_cnn([r for p in final_train for r in p["recordings"]], final_val, epochs, rng)
-    export(model, tp, tu, cnn_summary, base_summary, confusion, n_folds, len(pool), demo, len(patients), n_recs)
+    out = Path(args.out)
+    quiz = E.pick_quiz(results["recordings"], PRESENT, ABSENT, np.random.default_rng(SEED + 2))
+    model = None
+    if not args.no_final:
+        print("Training final model on all non-demo children...", flush=True)
+        final_train, final_val = train_test_split(pool, test_size=0.15, random_state=SEED, stratify=y_pool)
+        model, (tp, tu) = train_cnn([r for p in final_train for r in p["recordings"]], final_val, epochs, rng,
+                                    robust=args.robust)
+    export(out, model, tp, tu, cnn_summary, base_summary, confusion, n_folds, len(pool), demo, len(patients),
+           n_recs, analysis, quiz, args.robust)
     print(f"Done in {(time.time() - t0) / 60:.1f} min")
 
 
-def export(model, tp, tu, cnn_summary, base_summary, confusion, n_folds, n_pool, demo, n_patients, n_recs):
-    WEB_MODEL.mkdir(parents=True, exist_ok=True)
-    WEB_SAMPLES.mkdir(parents=True, exist_ok=True)
-    dummy = torch.zeros(1, 1, F.N_MELS, F.WINDOW_FRAMES)
-    torch.onnx.export(WithSoftmax(model).eval(), dummy, str(WEB_MODEL / "murmur_cnn.onnx"),
-                      input_names=["logmel"], output_names=["probs"],
-                      dynamic_axes={"logmel": {0: "batch"}, "probs": {0: "batch"}},
-                      opset_version=17, dynamo=False)
+def summarize_robust(fold_metrics):
+    keys = ["weighted_accuracy", "sensitivity", "specificity", "auc", "beat_pass"]
+    return {k: float(np.mean([m[k] for m in fold_metrics])) for k in keys}
 
-    config = {
-        "features": {
-            "sample_rate": F.SAMPLE_RATE, "n_fft": F.N_FFT, "hop": F.HOP, "n_mels": F.N_MELS,
-            "window_frames": F.WINDOW_FRAMES, "window_step": F.WINDOW_STEP, "eps": F.EPS,
-            "mel_filterbank": np.round(F.MEL_FB, 7).tolist(),
-        },
-        "classes": CLASSES,
-        "thresholds": {"present": tp, "unknown": tu},
-    }
-    (WEB_MODEL / "config.json").write_text(json.dumps(config))
+
+def export(out, model, tp, tu, cnn_summary, base_summary, confusion, n_folds, n_pool, demo, n_patients, n_recs,
+           analysis, quiz, robust):
+    model_dir, samples_dir, quiz_dir = out / "model", out / "samples", out / "quiz"
+    for d in (model_dir, samples_dir, quiz_dir):
+        d.mkdir(parents=True, exist_ok=True)
+    if model is not None:
+        dummy = torch.zeros(1, 1, F.N_MELS, F.WINDOW_FRAMES)
+        torch.onnx.export(WithSoftmax(model).eval(), dummy, str(model_dir / "murmur_cnn.onnx"),
+                          input_names=["logmel"], output_names=["probs"],
+                          dynamic_axes={"logmel": {0: "batch"}, "probs": {0: "batch"}},
+                          opset_version=17, dynamo=False)
+        config = {
+            "features": {
+                "sample_rate": F.SAMPLE_RATE, "n_fft": F.N_FFT, "hop": F.HOP, "n_mels": F.N_MELS,
+                "window_frames": F.WINDOW_FRAMES, "window_step": F.WINDOW_STEP, "eps": F.EPS,
+                "mel_filterbank": np.round(F.MEL_FB, 7).tolist(),
+            },
+            "classes": CLASSES,
+            "thresholds": {"present": tp, "unknown": tu},
+        }
+        (model_dir / "config.json").write_text(json.dumps(config))
 
     demo_cases = []
     for p in demo:
         files = []
         for r in p["recordings"]:
-            shutil.copy(r["path"], WEB_SAMPLES / r["path"].name)
+            shutil.copy(r["path"], samples_dir / r["path"].name)
             files.append({"file": r["path"].name, "location": r["location"]})
         demo_cases.append({"id": p["id"], "truth": CLASSES[p["label"]], "age": p["age"], "sex": p["sex"],
                            "murmur_locations": p["murmur_locations"], "timing": p["timing"],
                            "grade": p["grade"], "recordings": files})
 
+    quiz_items = []
+    for r in quiz:
+        shutil.copy(DATA_DIR / "training_data" / r["file"], quiz_dir / r["file"])
+        quiz_items.append({"file": r["file"], "location": r["location"], "murmur": r["label"] == PRESENT,
+                           "grade": r["grade"], "timing": r["timing"], "pitch": r["pitch"],
+                           "quality": r["quality"], "shape": r["shape"],
+                           "ai_present_prob": round(r["present_prob"], 3), "ai_flags": r["ai_flags"]})
+
     metrics = {
         "dataset": {"children": n_patients, "recordings": n_recs, "cv_children": n_pool, "demo_children": len(demo)},
+        "training": "robust" if robust else "clean",
         "folds": n_folds,
         "cnn": cnn_summary,
         "baseline": base_summary,
         "confusion": confusion,
         "challenge_reference": {"top_hidden_test": 0.780, "note": "Best team, PhysioNet 2022 hidden test set"},
+        "analysis": analysis,
         "demo_cases": demo_cases,
+        "quiz": quiz_items,
     }
-    (WEB_MODEL / "metrics.json").write_text(json.dumps(metrics, indent=1))
-    (WEB_MODEL / "metrics.js").write_text("const METRICS = " + json.dumps(metrics) + ";\n")
-    print(f"Exported model, thresholds ({tp}, {tu}) and {len(demo_cases)} demo cases to web/")
+    (model_dir / "metrics.json").write_text(json.dumps(metrics, indent=1))
+    (model_dir / "metrics.js").write_text("const METRICS = " + json.dumps(metrics) + ";\n")
+    print(f"Exported to {out}: model={'yes' if model is not None else 'no'}, thresholds ({tp}, {tu}), "
+          f"{len(demo_cases)} demo cases, {len(quiz_items)} quiz recordings")
 
 
 if __name__ == "__main__":

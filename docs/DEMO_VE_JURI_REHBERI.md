@@ -2,60 +2,68 @@
 
 Bu rehber senin için. Videoda ve jüriyle konuşurken kullanacağın cümleler İngilizce, açıklamalar Türkçe.
 
-## Teslimden önce yapılacaklar (sırayla)
+## Bağlantılar
 
-1. **GitHub'ı güncel tut**
-   - Depo: <https://github.com/Turan16-k/UnivaBio>
-   - Canlı demo: <https://turan16-k.github.io/UnivaBio/>
-   - Her değişiklikten sonra `littleheart` klasöründe `git push` çalıştır. Pages kendiliğinden yeniden yayınlanır.
-   - Linki aç, "Case 1"e tıkla ve çalıştığını gör.
-2. **Videoyu çek** (aşağıdaki senaryoyla, 3 dakika). Windows'ta Win + Alt + R ekran kaydını başlatır. Daha iyi sonuç için OBS kullanabilirsin.
-3. **Devpost'ta teslim et:** proje adı, kısa açıklama, video linki (YouTube'a liste dışı olarak yükleyebilirsin), GitHub linki, canlı demo linki, `docs/LittleHeart_Project_Description.pdf` ve `docs/LittleHeart_Code.pdf`.
-4. **Son tarih:** 20 Ekim 23:45 EDT, yani Türkiye saatiyle **21 Ekim 06:45**. Son saate bırakma.
+- Depo: <https://github.com/Turan16-k/UnivaBio>
+- Canlı demo: <https://turan16-k.github.io/UnivaBio/>
+- Doğrudan bir vaka açmak için: <https://turan16-k.github.io/UnivaBio/?case=4>
+- Her değişiklikten sonra `littleheart` klasöründe `git push` çalıştırman yeterli; GitHub Pages kendiliğinden yeniden yayınlanır.
 
-## Demo videosu senaryosu (yaklaşık 3 dakika)
+## Demo videosu senaryosu (yaklaşık 3,5 dakika)
 
-**0:00–0:25 · Sorun** (About murmurs sekmesi açık)
+**0:00–0:25 · Sorun** (About murmurs sekmesi)
 > "About one in a hundred babies is born with a heart defect, and rheumatic heart disease affects tens of millions of young people, mostly in low-income countries. Both often show up first as a heart murmur. But hearing a murmur takes years of training, and the echocardiogram that confirms it is scarce exactly where these diseases are most common. So I built LittleHeart."
 
-**0:25–1:35 · Canlı demo** (Screen a child sekmesi)
-- **Case 1**'e tıkla: "These are real children from a Brazilian screening dataset that my model never saw during training."
-- Sonuç kutusunu göster: "LittleHeart says: murmur suspected, refer for an echocardiogram. And here is the cardiologist's actual finding, revealed only after the analysis. It agreed."
-- Göğüs şemasını göster: "The chest diagram shows which valve areas sounded abnormal."
-- Bir kaydın **▶** düğmesine bas, sesi çal: "This is the spectrogram, a picture of the sound. Below it, the bars show how likely a murmur is in each 4-second window. Red bars cross the referral threshold."
-- Sonucu "No murmur" çıkan bir vaka aç (vaka listesi aşağıda): "Here is a healthy heart: green everywhere."
-- **Record** sekmesini göster: "A health worker can record live with a stethoscope adapter, or upload files."
-- İsteğe bağlı: mikrofonla konuşarak kayıt yap. "If I just talk into it, LittleHeart refuses to guess: no heartbeat found, record again. That's the safety check."
-- "Print screening note" düğmesini göster.
+**0:25–1:00 · Rehberli kayıt** (Screen a child → Record)
+- **Start guided screening** düğmesine bas: "A health worker is guided through the four listening sites, 15 seconds each."
+- Canlı dalga formunu ve göstergeyi göster: "LittleHeart checks the sound live. If there is no heartbeat, it says so before wasting the recording."
+- Mikrofona konuş, sonra **Stop**: "If I just talk, the AI refuses to guess. That is the safety check."
 
-**1:35–2:30 · Nasıl çalışıyor, nasıl test edildi** (Validation sekmesi)
-> "Each recording becomes a spectrogram, and a small convolutional neural network that I trained in PyTorch scores every 4-second window. It runs entirely in the browser, so no recording ever leaves the device."
-- Skor kartlarını göster: "I tested it with 5-fold cross-validation split by child, so the model never hears the same child in training and testing. On the official PhysioNet 2022 challenge score it reaches 0.78, compared to 0.60 for a simple baseline. The best team in the international challenge scored 0.78 too, but on a harder hidden test set, so that only tells me I'm in the right range, not that I match them."
-- Karışıklık matrisini göster: "It catches 87% of children with murmurs and clears 91% of those without. The area under the ROC curve is 0.94."
-- Güvenlik kontrolü kartı: "Because the AI has only heard heart sounds, it first checks there's a real heartbeat rhythm. Noise, tones and hum were rejected in every test."
+**1:00–1:45 · Gerçek vakalar** (Real cases)
+- **Case 4**'e tıkla: "These are real children from a Brazilian dataset that my model never saw in training. Murmur suspected, refer for echocardiogram, and here is the cardiologist's finding: it agreed."
+- Bir kaydın ▶ düğmesine bas: "The spectrogram is a picture of the sound. The bars show how likely a murmur is in each 4-second window."
+- **Case 5**'i aç: "A healthy heart: no murmur."
+- Çocuk kimliği yaz, **Save to log**, sonra **Screening log** sekmesi: "On a school screening day, every child goes into this log, stored only on the device, and can be exported for the clinic."
 
-**2:30–3:00 · Dürüstlük ve sonraki adımlar** (Honest status kartı)
-> "This is a research prototype, not a diagnosis. It still misses some murmurs, and it was trained on one population and one stethoscope. Next I want to test it with low-cost stethoscope adapters and partner with a school screening programme for rheumatic heart disease."
+**1:45–2:15 · Kulağını eğit** (Train your ear)
+> "Health workers can also practise. Here are 18 real recordings. I guess, then I see the cardiologist's answer and the AI's, from a model that never heard that child."
+- Bir kayda cevap ver ve sonucu göster.
+
+**2:15–3:00 · Nasıl çalışıyor, ne kadar iyi?** (Validation)
+- Skor kartları: "With 5-fold cross-validation split by child, it reaches 0.79 on the official PhysioNet 2022 murmur score, against 0.60 for a simple baseline. It catches 86% of children with murmurs and clears 91% of those without."
+- "Which murmurs does it miss?" kartı: "Almost all missed murmurs are the faintest grade. It caught every loud one."
+- "Real-world sound" tablosu: "Phones lose the deepest sounds. My first model caught only 36% of murmurs through a phone-like microphone. I retrained it with randomly damaged audio, and now it catches 83%."
+- Dış test tablosu: "I also tested it on a completely different dataset of mostly adult recordings. It did much worse there, AUC 0.57. That tells me it must be validated locally before being used anywhere new, and I say that openly in the app."
+
+**3:00–3:30 · Kapanış**
+> "It works offline, installs like an app, speaks four languages, and never uploads a recording. It is a research prototype, not a diagnosis. Next I want to test it with real low-cost stethoscope adapters and a school screening programme."
+- Dil seçiciden **TR**'yi seç ve sayfanın Türkçeye döndüğünü göster.
+
+Kayıt için Windows'ta Win + Alt + R ya da OBS kullanabilirsin.
 
 ## Jüriye kodu anlatırken: soru ve cevaplar
 
 | Muhtemel soru | Cevap ve göstereceğin yer |
 |---|---|
 | Veri nereden? | PhysioNet'teki CirCor DigiScope veri seti: 942 çocuk, 3.163 kayıt, kardiyologlar etiketledi. İndirme: `ml/download_data.py` |
-| Ses nasıl sayıya dönüşüyor? | `ml/features.py` içindeki `log_mel`. Ses 64 ms'lik parçalara bölünür, her parçanın frekans dağılımı FFT ile hesaplanır, 32 mel bandında toplanır ve logaritması alınır. Ortaya bir "ses resmi" çıkar. |
-| Model nedir? | `ml/train.py` içindeki `MurmurCNN`: 4 evrişim (convolution) bloğu, ortalama havuzlama (global average pooling) ve 3 çıkış (murmur yok / var / belirsiz). Yaklaşık 61.000 ağırlık. |
-| Neden 4 saniyelik pencereler? | 4 saniyede 4–8 kalp atışı olur, model her pencereye ayrı karar verir. Böylece "kaydın neresinde üfürüm var" da gösterilebilir. |
-| Çocuk bazında karar nasıl veriliyor? | `decide` fonksiyonu: herhangi bir kapakçıkta üfürüm eşiği aşılırsa sevk. Aşılmazsa ve bir kayıt belirsizse tekrar kayıt. Aksi halde üfürüm yok. PhysioNet yarışmasındaki sıra da böyle. |
-| Ezber (overfitting) yapmadığını nereden biliyorsun? | Veriyi kayıt bazında değil çocuk bazında böldüm, aynı çocuk hem eğitimde hem testte yok. 5 katlı çapraz doğrulama yaptım. Eşikleri test verisinde değil, ayrı bir doğrulama verisinde seçtim. Demo vakaları eğitime hiç girmedi. |
-| Neden ağırlıklı doğruluk (weighted accuracy)? | Yarışmanın resmi ölçütü bu. Üfürümü kaçırmak daha tehlikeli olduğu için üfürüm vakaları 5, belirsizler 3, normaller 1 kat sayılıyor. Kod: `weighted_accuracy` |
-| Tarayıcıda nasıl çalışıyor? | Model ONNX formatına çevrildi, ONNX Runtime Web ile çalışıyor (`web/js/model.js`). Spektrogram kodu JavaScript'e birebir çevrildi (`web/js/features.js`). `tests/test_pipeline.py` iki dilin aynı sayıları ürettiğini test ediyor. |
-| Konuşma kaydedersem ne olur? | `ml/heartbeat_check.py`: düşük frekanslı ses yüksekliğinde dakikada 40–220 atımlık düzenli bir ritim aranır. Ritim yoksa model hiç tahmin yapmaz, "tekrar kaydedin" der. |
-| Basit modele göre CNN ne kazandırıyor? | Validation sekmesindeki karşılaştırma: CNN 0,78, basit lojistik regresyon 0,60. Üfürüm yakalama oranı %57'den %87'ye çıkıyor. |
+| Ses nasıl sayıya dönüşüyor? | `ml/features.py` içindeki `log_mel`. Ses 64 ms'lik parçalara bölünür, her parçanın frekansları FFT ile hesaplanır, 32 mel bandında toplanır ve logaritması alınır. Ortaya bir "ses resmi" çıkar. |
+| Model nedir? | `ml/train.py` içindeki `MurmurCNN`: 4 evrişim bloğu, ortalama havuzlama ve 3 çıkış (üfürüm yok / var / belirsiz). Yaklaşık 61.000 ağırlık. |
+| "Gerçek dünya için eğitildi" ne demek? | `ml/evaluation.py` içindeki `augmented_window`: eğitim pencerelerinin %60'ı rastgele bozuluyor. Bazılarında 60–250 Hz altı kesiliyor (telefon mikrofonu gibi), bazılarına 3–30 dB arası gürültü ekleniyor. Böylece model temiz olmayan seslere alışıyor. |
+| Bunun işe yaradığını nereden biliyorsun? | Aynı katlarla iki model eğittim: biri sadece temiz sesle, biri bozulmuş sesle. Test kayıtlarını da bozup ikisini karşılaştırdım (`evaluate_fold`). Telefon benzeri mikrofonda yakalanan üfürüm %36'dan %83'e çıktı. Eğitimde hiç görmediği tutma gürültüsünde ise biraz kötüleşti. Bunu da yazdım. |
+| Çocuk bazında karar nasıl veriliyor? | `decide` fonksiyonu: herhangi bir kapakçıkta üfürüm eşiği aşılırsa sevk. Aşılmazsa ve bir kayıt belirsizse tekrar kayıt. Aksi halde üfürüm yok. |
+| Ezber yapmadığını nereden biliyorsun? | Veriyi kayıt bazında değil çocuk bazında böldüm. 5 katlı çapraz doğrulama yaptım. Eşikleri ayrı bir doğrulama verisinde seçtim. Demo vakaları eğitime hiç girmedi. Ayrıca tamamen farklı bir veri setinde de test ettim (`ml/external_validation.py`). |
+| Neden ağırlıklı doğruluk? | Yarışmanın resmi ölçütü bu. Üfürümü kaçırmak daha tehlikeli olduğu için üfürüm vakaları 5, belirsizler 3, normaller 1 kat sayılıyor. Kod: `weighted_accuracy` |
+| Tarayıcıda nasıl çalışıyor? | Model ONNX formatına çevrildi ve ONNX Runtime Web ile çalışıyor (`web/js/model.js`). Spektrogram kodu JavaScript'e birebir çevrildi (`web/js/features.js`). Testler iki dilin aynı sayıları ürettiğini doğruluyor. |
+| İnternetsiz nasıl çalışıyor? | `web/sw.js` bir service worker: ilk ziyarette uygulamayı, modeli ve kayıtları önbelleğe alıyor, sonra internet olmadan oradan sunuyor. |
+| Canlı kalite kontrolü nasıl? | `web/js/guided.js` içindeki `checkLive`: her saniye son 6 saniyelik sesi 4 kHz'e indirip kalp atışı kontrolünden geçiriyor. |
+| Konuşma kaydedersem ne olur? | `ml/heartbeat_check.py`: düşük frekanslı ses yüksekliğinde dakikada 40–220 atımlık düzenli bir ritim aranır. Ritim yoksa model tahmin yapmaz, "tekrar kaydedin" der. |
+| Quiz'deki yapay zeka cevapları hile mi? | Hayır. Her cevap, o çocuğu eğitimde hiç görmemiş çapraz doğrulama modelinden geliyor (`pick_quiz`). |
 | Yapay zeka asistanı kullandın mı? | Evet, kurallar buna izin veriyor. Önemli olan her parçayı anlayıp açıklayabilmen. Bu tabloyu çalış. |
 
 ## En zayıf noktalar ve dürüst cevapları
 
-- **"Üfürümlerin bir kısmını kaçırıyor."** Evet, çapraz doğrulamada yaklaşık 8 üfürümden 1'ini kaçırıyor. Bu yüzden bir tanı aracı değil, "kimi önce ekokardiyografiye gönderelim" sorusuna yardım eden bir tarama aracı. Kaçırılan vakaların hafif (düşük dereceli) üfürümler olup olmadığını analiz etmek bir sonraki adım.
-- **"Birinciyle aynı skoru mu aldın?"** Hayır, böyle bir iddiam yok. Benim 0,78'im herkese açık veride çapraz doğrulama sonucu. Birincinin 0,78'i ise daha zor bir gizli test setinde. Sadece doğru aralıkta olduğumu gösteriyor. Uygulamada da açıkça böyle yazıyor.
-- **"Demo vakalarında 3 sağlıklı çocuğa neden 'tekrar kaydedin' dedi?"** Demo vakaları eğitimden önce rastgele seçildi, ben sonucu güzelleştirmek için değiştirmedim. Hatalar güvenli tarafta: 4 üfürümün hiçbirini kaçırmadı, sağlıklı çocuklardan sadece tekrar kayıt istedi. Yarışmanın puanlama ölçütü "belirsiz" sınıfını 3 kat ağırlıkla saydığı için eşikler de "belirsiz" demeye biraz yatkın.
-- **"Telefon mikrofonuyla çalışır mı?"** Henüz test edilmedi, sınırlamalarda yazıyor. Steteskop adaptörüyle test etmek planlanan ilk adım.
+- **"Üfürümlerin bir kısmını kaçırıyor."** Evet, yaklaşık 7 üfürümden 1'ini kaçırıyor. Ama tamamen kaçırılan 24 üfürümün 22'si en hafif derece (I/VI). Yüksek sesli (III/VI) üfürümlerin hepsini yakaladı.
+- **"Birinciyle aynı skoru mu aldın?"** Hayır, böyle bir iddiam yok. Benim 0,79'um herkese açık veride çapraz doğrulama sonucu. Birincinin 0,78'i daha zor bir gizli test setinde. Sadece doğru aralıkta olduğumu gösteriyor.
+- **"Başka veride neden bu kadar kötü?"** PhysioNet 2016 verisi çoğunlukla yetişkinlerden, başka cihazlarla alındı. Etiketleri de "üfürüm" değil "normal/anormal kalp"; örneğin koroner arter hastalığı üfürüm yapmaz. Yine de sonuç, modelin yeni bir yerde kullanılmadan önce yerel olarak doğrulanması gerektiğini gösteriyor. Bunu uygulamada açıkça yazdım.
+- **"Telefon mikrofonuyla çalışır mı?"** Telefon benzeri bozulmayı simüle ederek test ettim ve dayanıklı eğitimle büyük iyileşme gördüm. Ama gerçek bir telefon adaptörüyle henüz test etmedim. Bu, planlanan ilk adım.
+- **"Demo vakalarında neden 2 hata var?"** Demo vakaları eğitimden önce rastgele seçildi, sonucu güzelleştirmek için değiştirmedim. 4 üfürümün hiçbirini kaçırmadı. Bir sağlıklı çocuktan tekrar kayıt istedi. Bir de uzmanın bile karar veremediği bir kayda "üfürüm yok" dedi.

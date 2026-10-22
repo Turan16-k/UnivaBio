@@ -17,7 +17,7 @@
         fetch("model/config.json").then(r => r.json()),
         fetch("model/heartbeat_check.json").then(r => r.json()),
       ]);
-      ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/";
+      ort.env.wasm.wasmPaths = new URL("vendor/ort/", document.baseURI).href;
       ort.env.wasm.numThreads = 1;
       session = await ort.InferenceSession.create("model/murmur_cnn.onnx", { executionProviders: ["wasm"] });
     })();

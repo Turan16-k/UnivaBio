@@ -1,136 +1,278 @@
-﻿942 children, 3163 recordings; 10 held out as demo cases
+﻿942 children, 3163 recordings; 10 held out as demo cases; robust training
 Fold 1/5: train 633, val 112, test 187 children
-    epoch  1  loss 0.682  val weighted acc 0.712
-    epoch  2  loss 0.550  val weighted acc 0.736
-    epoch  3  loss 0.501  val weighted acc 0.774
-    epoch  4  loss 0.473  val weighted acc 0.764
-    epoch  5  loss 0.471  val weighted acc 0.759
-    epoch  6  loss 0.447  val weighted acc 0.755
-    epoch  7  loss 0.445  val weighted acc 0.759
-    epoch  8  loss 0.429  val weighted acc 0.774
-    epoch  9  loss 0.419  val weighted acc 0.755
-    epoch 10  loss 0.404  val weighted acc 0.741
-    epoch 11  loss 0.392  val weighted acc 0.774
-    epoch 12  loss 0.382  val weighted acc 0.755
-    epoch 13  loss 0.376  val weighted acc 0.755
-    epoch 14  loss 0.362  val weighted acc 0.759
-    epoch 15  loss 0.366  val weighted acc 0.783
-    epoch 16  loss 0.349  val weighted acc 0.792
-    epoch 17  loss 0.341  val weighted acc 0.792
-    epoch 18  loss 0.341  val weighted acc 0.788
-    epoch 19  loss 0.347  val weighted acc 0.778
-    epoch 20  loss 0.340  val weighted acc 0.783
-  CNN weighted acc 0.844 (sens 0.94, spec 0.91, AUC 0.985)  |  baseline 0.578
+    epoch  1  loss 0.742  val weighted acc 0.684
+    epoch  2  loss 0.616  val weighted acc 0.684
+    epoch  3  loss 0.578  val weighted acc 0.703
+    epoch  4  loss 0.537  val weighted acc 0.726
+    epoch  5  loss 0.514  val weighted acc 0.717
+    epoch  6  loss 0.511  val weighted acc 0.755
+    epoch  7  loss 0.492  val weighted acc 0.712
+    epoch  8  loss 0.494  val weighted acc 0.764
+    epoch  9  loss 0.484  val weighted acc 0.778
+    epoch 10  loss 0.474  val weighted acc 0.778
+    epoch 11  loss 0.467  val weighted acc 0.769
+    epoch 12  loss 0.461  val weighted acc 0.769
+    epoch 13  loss 0.453  val weighted acc 0.764
+    epoch 14  loss 0.449  val weighted acc 0.792
+    epoch 15  loss 0.440  val weighted acc 0.792
+    epoch 16  loss 0.446  val weighted acc 0.769
+    epoch 17  loss 0.434  val weighted acc 0.769
+    epoch 18  loss 0.430  val weighted acc 0.774
+    epoch 19  loss 0.426  val weighted acc 0.769
+    epoch 20  loss 0.416  val weighted acc 0.778
+  CNN weighted acc 0.796 (sens 0.80, spec 0.98, AUC 0.984)  |  baseline 0.578  |  noise20 0.805 noise10 0.754 noise5 0.646 phone 0.771 rumble 0.671  (31 min)
 Fold 2/5: train 633, val 112, test 187 children
-    epoch  1  loss 0.694  val weighted acc 0.797
-    epoch  2  loss 0.558  val weighted acc 0.821
-    epoch  3  loss 0.509  val weighted acc 0.816
-    epoch  4  loss 0.477  val weighted acc 0.840
-    epoch  5  loss 0.462  val weighted acc 0.854
-    epoch  6  loss 0.442  val weighted acc 0.882
-    epoch  7  loss 0.415  val weighted acc 0.797
-    epoch  8  loss 0.419  val weighted acc 0.844
-    epoch  9  loss 0.399  val weighted acc 0.825
-    epoch 10  loss 0.402  val weighted acc 0.863
-    epoch 11  loss 0.372  val weighted acc 0.825
-    epoch 12  loss 0.373  val weighted acc 0.821
-    epoch 13  loss 0.360  val weighted acc 0.816
-    epoch 14  loss 0.351  val weighted acc 0.840
-    epoch 15  loss 0.339  val weighted acc 0.849
-    epoch 16  loss 0.339  val weighted acc 0.821
-    epoch 17  loss 0.334  val weighted acc 0.840
-    epoch 18  loss 0.325  val weighted acc 0.835
-    epoch 19  loss 0.328  val weighted acc 0.844
-    epoch 20  loss 0.314  val weighted acc 0.825
-  CNN weighted acc 0.758 (sens 0.83, spec 0.93, AUC 0.889)  |  baseline 0.603
+    epoch  1  loss 0.739  val weighted acc 0.759
+    epoch  2  loss 0.615  val weighted acc 0.764
+    epoch  3  loss 0.567  val weighted acc 0.755
+    epoch  4  loss 0.529  val weighted acc 0.821
+    epoch  5  loss 0.506  val weighted acc 0.844
+    epoch  6  loss 0.493  val weighted acc 0.811
+    epoch  7  loss 0.494  val weighted acc 0.830
+    epoch  8  loss 0.473  val weighted acc 0.840
+    epoch  9  loss 0.469  val weighted acc 0.882
+    epoch 10  loss 0.468  val weighted acc 0.854
+    epoch 11  loss 0.449  val weighted acc 0.816
+    epoch 12  loss 0.441  val weighted acc 0.863
+    epoch 13  loss 0.431  val weighted acc 0.858
+    epoch 14  loss 0.423  val weighted acc 0.877
+    epoch 15  loss 0.431  val weighted acc 0.854
+    epoch 16  loss 0.424  val weighted acc 0.844
+    epoch 17  loss 0.409  val weighted acc 0.882
+    epoch 18  loss 0.416  val weighted acc 0.882
+    epoch 19  loss 0.422  val weighted acc 0.887
+    epoch 20  loss 0.407  val weighted acc 0.882
+  CNN weighted acc 0.766 (sens 0.86, spec 0.87, AUC 0.905)  |  baseline 0.603  |  noise20 0.755 noise10 0.718 noise5 0.715 phone 0.744 rumble 0.758  (103 min)
 Fold 3/5: train 634, val 112, test 186 children
-    epoch  1  loss 0.682  val weighted acc 0.708
-    epoch  2  loss 0.535  val weighted acc 0.830
-    epoch  3  loss 0.504  val weighted acc 0.807
-    epoch  4  loss 0.481  val weighted acc 0.868
-    epoch  5  loss 0.464  val weighted acc 0.835
-    epoch  6  loss 0.457  val weighted acc 0.854
-    epoch  7  loss 0.437  val weighted acc 0.858
-    epoch  8  loss 0.430  val weighted acc 0.877
-    epoch  9  loss 0.416  val weighted acc 0.849
-    epoch 10  loss 0.403  val weighted acc 0.854
-    epoch 11  loss 0.392  val weighted acc 0.868
-    epoch 12  loss 0.382  val weighted acc 0.854
-    epoch 13  loss 0.379  val weighted acc 0.849
-    epoch 14  loss 0.356  val weighted acc 0.877
-    epoch 15  loss 0.359  val weighted acc 0.854
-    epoch 16  loss 0.351  val weighted acc 0.854
-    epoch 17  loss 0.343  val weighted acc 0.854
-    epoch 18  loss 0.336  val weighted acc 0.858
-    epoch 19  loss 0.336  val weighted acc 0.854
-    epoch 20  loss 0.329  val weighted acc 0.854
-  CNN weighted acc 0.724 (sens 0.77, spec 0.93, AUC 0.938)  |  baseline 0.582
+    epoch  1  loss 0.745  val weighted acc 0.745
+    epoch  2  loss 0.635  val weighted acc 0.830
+    epoch  3  loss 0.573  val weighted acc 0.830
+    epoch  4  loss 0.558  val weighted acc 0.844
+    epoch  5  loss 0.540  val weighted acc 0.830
+    epoch  6  loss 0.517  val weighted acc 0.877
+    epoch  7  loss 0.499  val weighted acc 0.868
+    epoch  8  loss 0.498  val weighted acc 0.858
+    epoch  9  loss 0.485  val weighted acc 0.892
+    epoch 10  loss 0.487  val weighted acc 0.882
+    epoch 11  loss 0.480  val weighted acc 0.882
+    epoch 12  loss 0.466  val weighted acc 0.873
+    epoch 13  loss 0.459  val weighted acc 0.882
+    epoch 14  loss 0.443  val weighted acc 0.887
+    epoch 15  loss 0.450  val weighted acc 0.873
+    epoch 16  loss 0.444  val weighted acc 0.873
+    epoch 17  loss 0.449  val weighted acc 0.873
+    epoch 18  loss 0.431  val weighted acc 0.877
+    epoch 19  loss 0.434  val weighted acc 0.882
+    epoch 20  loss 0.429  val weighted acc 0.877
+  CNN weighted acc 0.759 (sens 0.80, spec 0.91, AUC 0.934)  |  baseline 0.582  |  noise20 0.733 noise10 0.739 noise5 0.707 phone 0.761 rumble 0.739  (141 min)
 Fold 4/5: train 634, val 112, test 186 children
-    epoch  1  loss 0.668  val weighted acc 0.778
-    epoch  2  loss 0.529  val weighted acc 0.774
-    epoch  3  loss 0.516  val weighted acc 0.811
-    epoch  4  loss 0.472  val weighted acc 0.811
-    epoch  5  loss 0.472  val weighted acc 0.830
-    epoch  6  loss 0.443  val weighted acc 0.811
-    epoch  7  loss 0.449  val weighted acc 0.807
-    epoch  8  loss 0.434  val weighted acc 0.807
-    epoch  9  loss 0.426  val weighted acc 0.778
-    epoch 10  loss 0.416  val weighted acc 0.811
-    epoch 11  loss 0.396  val weighted acc 0.835
-    epoch 12  loss 0.397  val weighted acc 0.840
-    epoch 13  loss 0.382  val weighted acc 0.825
-    epoch 14  loss 0.376  val weighted acc 0.825
-    epoch 15  loss 0.375  val weighted acc 0.797
-    epoch 16  loss 0.367  val weighted acc 0.811
-    epoch 17  loss 0.358  val weighted acc 0.811
-    epoch 18  loss 0.354  val weighted acc 0.821
-    epoch 19  loss 0.349  val weighted acc 0.830
-    epoch 20  loss 0.345  val weighted acc 0.821
-  CNN weighted acc 0.736 (sens 0.86, spec 0.87, AUC 0.938)  |  baseline 0.565
+    epoch  1  loss 0.721  val weighted acc 0.670
+    epoch  2  loss 0.613  val weighted acc 0.774
+    epoch  3  loss 0.560  val weighted acc 0.778
+    epoch  4  loss 0.524  val weighted acc 0.816
+    epoch  5  loss 0.529  val weighted acc 0.759
+    epoch  6  loss 0.525  val weighted acc 0.778
+    epoch  7  loss 0.516  val weighted acc 0.797
+    epoch  8  loss 0.517  val weighted acc 0.825
+    epoch  9  loss 0.491  val weighted acc 0.811
+    epoch 10  loss 0.481  val weighted acc 0.788
+    epoch 11  loss 0.476  val weighted acc 0.807
+    epoch 12  loss 0.456  val weighted acc 0.849
+    epoch 13  loss 0.457  val weighted acc 0.830
+    epoch 14  loss 0.451  val weighted acc 0.816
+    epoch 15  loss 0.450  val weighted acc 0.858
+    epoch 16  loss 0.439  val weighted acc 0.854
+    epoch 17  loss 0.438  val weighted acc 0.840
+    epoch 18  loss 0.434  val weighted acc 0.840
+    epoch 19  loss 0.441  val weighted acc 0.825
+    epoch 20  loss 0.432  val weighted acc 0.825
+  CNN weighted acc 0.798 (sens 0.91, spec 0.87, AUC 0.941)  |  baseline 0.565  |  noise20 0.759 noise10 0.741 noise5 0.639 phone 0.756 rumble 0.665  (2770 min)
 Fold 5/5: train 634, val 112, test 186 children
-    epoch  1  loss 0.684  val weighted acc 0.731
-    epoch  2  loss 0.564  val weighted acc 0.792
-    epoch  3  loss 0.513  val weighted acc 0.774
-    epoch  4  loss 0.502  val weighted acc 0.821
-    epoch  5  loss 0.483  val weighted acc 0.797
-    epoch  6  loss 0.473  val weighted acc 0.830
-    epoch  7  loss 0.470  val weighted acc 0.783
-    epoch  8  loss 0.449  val weighted acc 0.811
-    epoch  9  loss 0.448  val weighted acc 0.769
-    epoch 10  loss 0.440  val weighted acc 0.811
-    epoch 11  loss 0.420  val weighted acc 0.811
-    epoch 12  loss 0.415  val weighted acc 0.797
-    epoch 13  loss 0.402  val weighted acc 0.807
-    epoch 14  loss 0.395  val weighted acc 0.840
-    epoch 15  loss 0.398  val weighted acc 0.821
-    epoch 16  loss 0.373  val weighted acc 0.811
-    epoch 17  loss 0.374  val weighted acc 0.821
-    epoch 18  loss 0.362  val weighted acc 0.811
-    epoch 19  loss 0.365  val weighted acc 0.811
-    epoch 20  loss 0.354  val weighted acc 0.811
-  CNN weighted acc 0.830 (sens 0.94, spec 0.93, AUC 0.954)  |  baseline 0.653
-CNN      {'weighted_accuracy': 0.778, 'sensitivity': 0.869, 'specificity': 0.915, 'auc': 0.941}
+    epoch  1  loss 0.761  val weighted acc 0.665
+    epoch  2  loss 0.650  val weighted acc 0.717
+    epoch  3  loss 0.593  val weighted acc 0.797
+    epoch  4  loss 0.568  val weighted acc 0.792
+    epoch  5  loss 0.538  val weighted acc 0.769
+    epoch  6  loss 0.530  val weighted acc 0.797
+    epoch  7  loss 0.513  val weighted acc 0.802
+    epoch  8  loss 0.507  val weighted acc 0.844
+    epoch  9  loss 0.504  val weighted acc 0.835
+    epoch 10  loss 0.494  val weighted acc 0.792
+    epoch 11  loss 0.481  val weighted acc 0.807
+    epoch 12  loss 0.469  val weighted acc 0.802
+    epoch 13  loss 0.474  val weighted acc 0.802
+    epoch 14  loss 0.469  val weighted acc 0.792
+    epoch 15  loss 0.446  val weighted acc 0.788
+    epoch 16  loss 0.461  val weighted acc 0.802
+    epoch 17  loss 0.445  val weighted acc 0.792
+    epoch 18  loss 0.451  val weighted acc 0.807
+    epoch 19  loss 0.437  val weighted acc 0.797
+    epoch 20  loss 0.438  val weighted acc 0.811
+  CNN weighted acc 0.827 (sens 0.94, spec 0.93, AUC 0.966)  |  baseline 0.653  |  noise20 0.824 noise10 0.798 noise5 0.759 phone 0.801 rumble 0.804  (2793 min)
+CNN      {'weighted_accuracy': 0.789, 'sensitivity': 0.863, 'specificity': 0.912, 'auc': 0.946}
 Baseline {'weighted_accuracy': 0.596, 'sensitivity': 0.566, 'specificity': 0.838, 'auc': 0.727}
+{
+ "by_grade": [
+  {
+   "group": "I/VI",
+   "n": 103,
+   "referred": 81,
+   "rerecord": 0,
+   "missed": 22
+  },
+  {
+   "group": "II/VI",
+   "n": 27,
+   "referred": 25,
+   "rerecord": 0,
+   "missed": 2
+  },
+  {
+   "group": "III/VI",
+   "n": 45,
+   "referred": 45,
+   "rerecord": 0,
+   "missed": 0
+  }
+ ],
+ "by_timing": [
+  {
+   "group": "Early-systolic",
+   "n": 57,
+   "referred": 46,
+   "rerecord": 0,
+   "missed": 11
+  },
+  {
+   "group": "Mid-systolic",
+   "n": 17,
+   "referred": 17,
+   "rerecord": 0,
+   "missed": 0
+  },
+  {
+   "group": "Late-systolic",
+   "n": 1,
+   "referred": 1,
+   "rerecord": 0,
+   "missed": 0
+  },
+  {
+   "group": "Holosystolic",
+   "n": 100,
+   "referred": 87,
+   "rerecord": 0,
+   "missed": 13
+  }
+ ],
+ "by_age": [
+  {
+   "group": "Neonate",
+   "murmur": 1,
+   "no_murmur": 4,
+   "sensitivity": 0.0,
+   "specificity": 0.75
+  },
+  {
+   "group": "Infant",
+   "murmur": 25,
+   "no_murmur": 76,
+   "sensitivity": 0.88,
+   "specificity": 0.8552631578947368
+  },
+  {
+   "group": "Child",
+   "murmur": 128,
+   "no_murmur": 491,
+   "sensitivity": 0.8671875,
+   "specificity": 0.9144602851323829
+  },
+  {
+   "group": "Adolescent",
+   "murmur": 16,
+   "no_murmur": 53,
+   "sensitivity": 0.8125,
+   "specificity": 0.9433962264150944
+  }
+ ],
+ "robustness": [
+  {
+   "condition": "clean",
+   "name": "Original recordings",
+   "weighted_accuracy": 0.7891507809411193,
+   "sensitivity": 0.8628571428571428,
+   "specificity": 0.9116254822229173,
+   "auc": 0.9462752282645933,
+   "beat_pass": 0.9626102820336196
+  },
+  {
+   "condition": "noise20",
+   "name": "Background noise, 20 dB SNR",
+   "weighted_accuracy": 0.7749606128918761,
+   "sensitivity": 0.822857142857143,
+   "specificity": 0.9319153372953812,
+   "auc": 0.9394500796878026,
+   "beat_pass": 0.9523335401712844
+  },
+  {
+   "condition": "noise10",
+   "name": "Background noise, 10 dB SNR",
+   "weighted_accuracy": 0.7500520053102545,
+   "sensitivity": 0.7542857142857143,
+   "specificity": 0.959451569179439,
+   "auc": 0.8961970299536768,
+   "beat_pass": 0.7488062715559021
+  },
+  {
+   "condition": "noise5",
+   "name": "Background noise, 5 dB SNR",
+   "weighted_accuracy": 0.6932997890769805,
+   "sensitivity": 0.6799999999999999,
+   "specificity": 0.9478365133979774,
+   "auc": 0.8699909141010174,
+   "beat_pass": 0.2658998671439396
+  },
+  {
+   "condition": "phone",
+   "name": "Phone-like microphone (no sound below 150 Hz)",
+   "weighted_accuracy": 0.7664764067277734,
+   "sensitivity": 0.8285714285714286,
+   "specificity": 0.9029715358148265,
+   "auc": 0.9452510538153328,
+   "beat_pass": 0.958777567672003
+  },
+  {
+   "condition": "rumble",
+   "name": "Handling rumble, 10 dB SNR (never seen in training)",
+   "weighted_accuracy": 0.7273041888985212,
+   "sensitivity": 0.7085714285714286,
+   "specificity": 0.9768115942028986,
+   "auc": 0.9137500930932273,
+   "beat_pass": 0.8198330984469526
+  }
+ ]
+}
 Training final model on all non-demo children...
-    epoch  1  loss 0.670  val weighted acc 0.670
-    epoch  2  loss 0.536  val weighted acc 0.746
-    epoch  3  loss 0.504  val weighted acc 0.780
-    epoch  4  loss 0.481  val weighted acc 0.723
-    epoch  5  loss 0.466  val weighted acc 0.811
-    epoch  6  loss 0.459  val weighted acc 0.735
-    epoch  7  loss 0.447  val weighted acc 0.716
-    epoch  8  loss 0.429  val weighted acc 0.777
-    epoch  9  loss 0.419  val weighted acc 0.807
-    epoch 10  loss 0.412  val weighted acc 0.811
-    epoch 11  loss 0.396  val weighted acc 0.803
-    epoch 12  loss 0.386  val weighted acc 0.799
-    epoch 13  loss 0.389  val weighted acc 0.777
-    epoch 14  loss 0.388  val weighted acc 0.799
-    epoch 15  loss 0.375  val weighted acc 0.830
-    epoch 16  loss 0.361  val weighted acc 0.811
-    epoch 17  loss 0.359  val weighted acc 0.792
-    epoch 18  loss 0.355  val weighted acc 0.811
-    epoch 19  loss 0.351  val weighted acc 0.826
-    epoch 20  loss 0.359  val weighted acc 0.826
-Exported model, thresholds (0.3, 0.25) and 10 demo cases to web/
-Done in 84.2 min
+    epoch  1  loss 0.737  val weighted acc 0.667
+    epoch  2  loss 0.601  val weighted acc 0.712
+    epoch  3  loss 0.565  val weighted acc 0.780
+    epoch  4  loss 0.528  val weighted acc 0.761
+    epoch  5  loss 0.517  val weighted acc 0.758
+    epoch  6  loss 0.513  val weighted acc 0.758
+    epoch  7  loss 0.493  val weighted acc 0.769
+    epoch  8  loss 0.475  val weighted acc 0.769
+    epoch  9  loss 0.477  val weighted acc 0.780
+    epoch 10  loss 0.473  val weighted acc 0.799
+    epoch 11  loss 0.462  val weighted acc 0.795
+    epoch 12  loss 0.465  val weighted acc 0.795
+    epoch 13  loss 0.451  val weighted acc 0.799
+    epoch 14  loss 0.449  val weighted acc 0.803
+    epoch 15  loss 0.444  val weighted acc 0.803
+    epoch 16  loss 0.437  val weighted acc 0.811
+    epoch 17  loss 0.422  val weighted acc 0.807
+    epoch 18  loss 0.436  val weighted acc 0.807
+    epoch 19  loss 0.430  val weighted acc 0.814
+    epoch 20  loss 0.421  val weighted acc 0.803
+t. Learn more about the new export logic: https://docs.pytorch.org/docs/stable/onnx_export.html. For exporting control 
+Exported to data\eval_robust: model=yes, thresholds (0.35, 0.3), 10 demo cases, 18 quiz recordings
+Done in 2813.6 min
